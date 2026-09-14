@@ -1,0 +1,37 @@
+{
+  "unidade": "kg CO2eq/MWh",
+  "escopo": "ciclo de vida (construção, combustível, operação, descomissionamento)",
+  "referencia": "IPCC AR5, WG3, Annex III, Table A.III.2 — medianas de emissões de ciclo de vida por tecnologia",
+  "referencia_url": "https://www.ipcc.ch/site/assets/uploads/2018/02/ipcc_wg3_ar5_annex-iii.pdf",
+  "fatores": {
+    "hidraulica": {
+      "valor": 24,
+      "rotulo": "Hidráulica",
+      "fonte": "IPCC AR5, Annex III — mediana de ciclo de vida, hidrelétrica"
+    },
+    "eolica": {
+      "valor": 11,
+      "rotulo": "Eólica",
+      "fonte": "IPCC AR5, Annex III — mediana de ciclo de vida, eólica onshore"
+    },
+    "solar": {
+      "valor": 48,
+      "rotulo": "Solar",
+      "fonte": "IPCC AR5, Annex III — mediana de ciclo de vida, fotovoltaica de grande porte"
+    },
+    "termica": {
+      "valor": 490,
+      "minimo": 230,
+      "maximo": 820,
+      "rotulo": "Térmica",
+      "fonte": "IPCC AR5, Annex III — mediana do gás natural de ciclo combinado (490), tecnologia dominante no parque térmico do SE/CO",
+      "premissa": "O ONS publica a geração térmica como um bloco único: gás, carvão, óleo, biomassa e a nuclear de Angra entram juntos em val_gertermica. Sem abertura por combustível, adotamos o gás de ciclo combinado como valor central e exibimos a faixa entre biomassa dedicada (230) e carvão (820) como análise de sensibilidade.",
+      "faixa_fonte": "IPCC AR5, Annex III — biomassa dedicada (230) e carvão (820)"
+    }
+  },
+  "validacao": {
+    "descricao": "O MCTI publica o fator médio do SIN contando apenas a queima de combustível fóssil; historicamente entre 0,04 e 0,10 tCO₂/MWh (40 a 100 kg/MWh). A intensidade desta página é de ciclo de vida e inclui a construção das renováveis, então fica acima dessa faixa por construção, não por erro.",
+    "fonte": "MCTI/SIRENE — Fatores de emissão de CO₂ para inventários corporativos",
+    "url": "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/cgcl/paginas/fator-medio-inventarios-corporativos"
+  }
+}

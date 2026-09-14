@@ -1,1 +1,55 @@
-# relogio-carbono
+# Relógio de Carbono do SIN
+
+Uma página que responde uma pergunta: **a que horas a energia brasileira é mais limpa — e quanto se ganha deslocando uma carga flexível para lá?**
+
+Eficiência energética sempre foi consumir menos kWh. Com a matriz brasileira atual existe uma segunda dimensão: *quando* se consome vale tanto quanto *quanto* se consome. O mix do Sistema Interligado Nacional muda hora a hora, e deslocar uma carga flexível de uma janela para outra reduz a pegada de carbono da mesma produção — sem investir em equipamento e sem produzir menos.
+
+🔗 **https://alvaromarcus.github.io/relogio-carbono/**
+
+Feito para o slide 13 da palestra *Energia Inteligente*, no 2º Fórum Sinerges.
+
+## Como funciona
+
+Não há servidor, banco de dados nem custo de hospedagem:
+
+```
+GitHub Actions (cron 13h e 20h de Brasília)
+  └─ scripts/build_sin.py  baixa o parquet do ONS → filtra → calcula
+       └─ docs/data/sin.json  commitado automaticamente
+            └─ GitHub Pages serve docs/, a página lê o JSON do mesmo domínio
+```
+
+Servir o JSON do próprio domínio elimina CORS; o Action commitando no repositório elimina o servidor.
+
+## O que é medido e o que é estimado
+
+| Métrica | Natureza |
+|---|---|
+| Percentual renovável por hora | **Medição.** Razão direta entre a geração renovável e a geração total publicadas pelo ONS. Não depende de premissa alguma. |
+| Intensidade de carbono por hora | **Estimativa.** Depende dos fatores de emissão de ciclo de vida do IPCC AR5, Annex III. |
+
+O ONS publica a geração térmica como um bloco único — gás, carvão, óleo, biomassa e a nuclear de Angra entram juntos em `val_gertermica`. Sem abertura por combustível, o valor central adotado é o do gás de ciclo combinado (490 kg CO₂eq/MWh) e a página exibe a faixa entre biomassa dedicada (230) e carvão (820) como análise de sensibilidade. A seção "Metodologia e premissas" da própria página traz a tabela completa, com a fonte de cada fator.
+
+## Rodando local
+
+```bash
+pip install -r requirements.txt
+python scripts/build_sin.py          # grava docs/data/sin.json
+python -m http.server --directory docs
+```
+
+Variáveis opcionais: `ANO` (padrão: ano corrente).
+
+## Fontes
+
+- **Dados:** [ONS — Balanço de Energia nos Subsistemas](https://dados.ons.org.br/dataset/balanco-energia-subsistema), base horária, licença Creative Commons Attribution. Os dados passam por processo de consistência recorrente e podem ser revisados depois de publicados.
+- **Fatores de emissão:** [IPCC AR5, WG3, Annex III, Table A.III.2](https://www.ipcc.ch/site/assets/uploads/2018/02/ipcc_wg3_ar5_annex-iii.pdf)
+- **Validação:** [MCTI/SIRENE — fator médio do SIN](https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/cgcl/paginas/fator-medio-inventarios-corporativos)
+
+## Limitações
+
+A página não faz previsão de intensidade para as próximas horas — mostra apenas o que já foi medido. O balanço do ONS sai com alguns dias de defasagem; a página anuncia o dia de referência com destaque.
+
+---
+
+Álvaro Severo Marcus · [CREA/ES](https://www.linkedin.com/in/alvaromarcus/)
