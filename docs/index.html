@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A que horas a energia brasileira é mais limpa?</title>
+<meta name="description" content="Intensidade de carbono hora a hora no Sistema Interligado Nacional, a partir dos dados abertos do ONS.">
+<style>
+:root{
+  color-scheme: light;
+  --plane:#f9f9f7; --surface:#fcfcfb;
+  --ink:#0b0b0b; --ink-2:#52514e; --ink-muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --ring-hair:rgba(11,11,11,.10);
+  --s100:#cde2fb; --s150:#b7d3f6; --s200:#9ec5f4; --s250:#86b6ef; --s300:#6da7ec;
+  --s350:#5598e7; --s400:#3987e5; --s450:#2a78d6; --s500:#256abf; --s550:#1c5cab;
+  --s600:#184f95; --s650:#104281; --s700:#0d366b;
+  --cat-hidr:#2a78d6; --cat-term:#eb6834; --cat-eol:#1baf7a; --cat-sol:#eda100;
+  --good:#0ca30c; --critical:#d03b3b;
+  --shadow:0 1px 2px rgba(11,11,11,.06), 0 8px 24px rgba(11,11,11,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --plane:#0d0d0d; --surface:#1a1a19;
+    --ink:#fff; --ink-2:#c3c2b7; --ink-muted:#898781;
+    --grid:#2c2c2a; --axis:#383835; --ring-hair:rgba(255,255,255,.10);
+    --cat-hidr:#3987e5; --cat-term:#d95926; --cat-eol:#199e70; --cat-sol:#c98500;
+    --shadow:none;
+  }
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--plane); color:var(--ink);
+  font:400 16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px; margin:0 auto; padding-inline:20px; padding-block:24px 56px}
+a{color:inherit}
+h1,h2,h3{margin:0; font-weight:650; letter-spacing:-.02em}
+h1{font-size:clamp(26px,3.6vw,44px); line-height:1.12}
+h2{font-size:clamp(19px,2vw,24px); margin-bottom:6px}
+.sub{color:var(--ink-2); margin-top:10px; font-size:clamp(15px,1.5vw,18px); max-width:62ch}
+.card{background:var(--surface); border:1px solid var(--ring-hair); border-radius:14px; box-shadow:var(--shadow)}
+.muted{color:var(--ink-muted)}
+.tnum{font-variant-numeric:tabular-nums}
+
+/* cabecalho */
+header{display:flex; flex-wrap:wrap; gap:18px; align-items:flex-start; justify-content:space-between}
+.selector{display:flex; gap:6px; flex-wrap:wrap}
+.selector button{
+  font:inherit; font-size:14px; font-weight:550; color:var(--ink-2); cursor:pointer;
+  background:var(--surface); border:1px solid var(--ring-hair); border-radius:999px; padding:7px 14px;
+}
+.selector button[aria-pressed="true"]{background:var(--ink); color:var(--plane); border-color:var(--ink)}
+.selector button:hover:not([aria-pressed="true"]){border-color:var(--axis)}
+.aviso{
+  margin-top:18px; display:flex; flex-wrap:wrap; gap:8px 18px; align-items:baseline;
+  font-size:14px; color:var(--ink-2); border-left:3px solid var(--axis); padding:8px 0 8px 12px;
+}
+.aviso b{color:var(--ink); font-weight:600}
+
+/* dobra */
+.dobra{display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,1fr); gap:22px; margin-top:22px; align-items:stretch}
+@media (max-width:900px){.dobra{grid-template-columns:1fr}}
+.painel{padding:20px}
+.relogio-box{display:flex; flex-direction:column}
+svg{display:block; max-width:100%; height:auto}
+
+.hero{font-size:clamp(46px,7vw,84px); font-weight:680; line-height:.95; letter-spacing:-.035em}
+.hero small{display:block; font-size:clamp(14px,1.5vw,17px); font-weight:500; color:var(--ink-2); letter-spacing:0; margin-top:10px; line-height:1.45}
+.frase{font-size:clamp(16px,1.7vw,19px); line-height:1.5; margin-top:18px}
+.frase b{font-weight:650}
+.calc{margin-top:20px; border-top:1px solid var(--grid); padding-top:16px}
+.calc label{display:block; font-size:14px; color:var(--ink-2); margin-bottom:8px}
+.calc-linha{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+.calc input{
+  font:inherit; font-size:17px; width:120px; padding:9px 12px; border-radius:9px;
+  border:1px solid var(--axis); background:var(--plane); color:var(--ink);
+}
+.calc input:focus-visible{outline:2px solid var(--s450); outline-offset:1px}
+.resultado{font-size:17px; line-height:1.45}
+.resultado b{font-size:23px; font-weight:660}
+
+/* legenda */
+.legenda{display:flex; flex-wrap:wrap; gap:6px 16px; align-items:center; font-size:13px; color:var(--ink-2); margin-top:14px}
+.chave{display:inline-flex; align-items:center; gap:7px}
+.swatch{width:12px; height:12px; border-radius:3px; border:1px solid var(--ring-hair)}
+.escala{display:flex; align-items:center; gap:9px; font-size:13px; color:var(--ink-2); margin-top:14px; flex-wrap:wrap}
+.escala .barra{height:11px; width:190px; border-radius:6px; border:1px solid var(--ring-hair);
+  background:linear-gradient(90deg,var(--s100),var(--s250),var(--s400),var(--s550),var(--s700))}
+
+/* secoes */
+section{margin-top:34px}
+.sec-head{margin-bottom:12px}
+.sec-head p{margin:6px 0 0; color:var(--ink-2); font-size:15px; max-width:70ch}
+figure{margin:0; padding:20px}
+figcaption{font-size:13.5px; color:var(--ink-muted); margin-top:12px}
+
+/* metodologia */
+.tabela{width:100%; border-collapse:collapse; font-size:14.5px; margin-top:6px}
+.tabela th,.tabela td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--grid); vertical-align:top}
+.tabela th{font-weight:600; color:var(--ink-2); font-size:13px; text-transform:uppercase; letter-spacing:.04em}
+.tabela td.num{text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap}
+.scroll-x{overflow-x:auto}
+.selo{display:inline-block; font-size:11.5px; font-weight:650; letter-spacing:.04em; text-transform:uppercase;
+  padding:3px 8px; border-radius:999px; border:1px solid currentColor}
+.selo.medido{color:var(--good)}
+.selo.estimado{color:var(--cat-term)}
+.nota{margin-top:14px; font-size:14.5px; color:var(--ink-2); line-height:1.55; max-width:78ch}
+.nota + .nota{margin-top:10px}
+
+footer{margin-top:44px; padding-top:20px; border-top:1px solid var(--grid); font-size:13.5px; color:var(--ink-2); line-height:1.65}
+footer a{text-decoration:underline; text-underline-offset:2px}
+
+/* tooltip */
+.tip{
+  position:fixed; pointer-events:none; z-index:9; opacity:0; transition:opacity .09s;
+  background:var(--surface); color:var(--ink); border:1px solid var(--ring-hair); border-radius:9px;
+  padding:9px 11px; font-size:13px; line-height:1.5; box-shadow:0 4px 16px rgba(0,0,0,.14); max-width:240px;
+}
+.tip b{font-weight:650}
+.erro{padding:20px; color:var(--critical)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1>A que horas a energia<br>brasileira é mais limpa?</h1>
+      <p class="sub">O mix do Sistema Interligado Nacional muda hora a hora. Deslocar uma carga flexível de uma janela para outra reduz a pegada de carbono da mesma produção — sem investir em equipamento e sem produzir menos.</p>
+    </div>
+    <div class="selector" id="selector" role="group" aria-label="Subsistema"></div>
+  </header>
+
+  <p class="aviso" id="aviso"></p>
+
+  <div class="dobra">
+    <div class="card painel relogio-box">
+      <h2>Intensidade de carbono, hora a hora</h2>
+      <div id="relogio"></div>
+      <div class="escala">
+        <span>Mais limpa</span>
+        <span class="barra" aria-hidden="true"></span>
+        <span>Mais suja</span>
+        <span class="muted tnum" id="escala-faixa"></span>
+      </div>
+    </div>
+
+    <div class="card painel">
+      <h2>A decisão</h2>
+      <div class="hero tnum" id="hero"></div>
+      <p class="frase" id="frase"></p>
+      <div class="calc">
+        <label for="carga">Sua carga flexível, em MWh por mês</label>
+        <div class="calc-linha">
+          <input id="carga" type="number" min="0" step="1" value="50" inputmode="numeric">
+          <span class="resultado" id="resultado"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <div class="sec-head">
+      <h2>Por que aquela hora é mais limpa</h2>
+      <p>Geração por fonte ao longo do dia de referência, em MWmed, com a carga do subsistema por cima. A hora limpa é limpa porque a solar entra e a térmica sai.</p>
+    </div>
+    <figure class="card" id="fig-mix"></figure>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>O dia de referência foi típico?</h2>
+      <p>Intensidade do dia de referência contra a média das mesmas horas nos últimos 30 dias.</p>
+    </div>
+    <figure class="card" id="fig-comparacao"></figure>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>Metodologia e premissas</h2>
+      <p>O percentual renovável é medição: sai direto do balanço do ONS e não depende de nenhuma premissa. A intensidade de carbono é estimativa: depende dos fatores de emissão abaixo.</p>
+    </div>
+    <div class="card painel">
+      <div class="scroll-x">
+        <table class="tabela" id="tabela-fatores">
+          <thead><tr><th>Fonte</th><th class="num">kg CO₂eq/MWh</th><th>Natureza</th><th>Origem do fator</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="notas-metodologia"></div>
+    </div>
+  </section>
+
+  <footer>
+    <p><b>Fonte dos dados:</b> ONS — Operador Nacional do Sistema Elétrico, Portal de Dados Abertos, <a href="https://dados.ons.org.br/dataset/balanco-energia-subsistema">Balanço de Energia nos Subsistemas</a> (base horária), licença Creative Commons Attribution. Os dados podem ser revisados pelo ONS depois de publicados.</p>
+    <p id="rodape-gerado"></p>
+    <p>Fatores de emissão: <a href="https://www.ipcc.ch/site/assets/uploads/2018/02/ipcc_wg3_ar5_annex-iii.pdf">IPCC AR5, WG3, Annex III</a>. Referência de validação: <a href="https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/cgcl/paginas/fator-medio-inventarios-corporativos">MCTI/SIRENE</a>.</p>
+    <p>Álvaro Severo Marcus · 2º Fórum Sinerges, 2026 · <a href="https://github.com/Alvaromarcus/relogio-carbono">código no GitHub</a></p>
+  </footer>
+</div>
+
+<div class="tip" id="tip" role="status" aria-live="polite"></div>
+
+<script>
+const RAMPA = ["#cde2fb","#b7d3f6","#9ec5f4","#86b6ef","#6da7ec","#5598e7","#3987e5","#2a78d6","#256abf","#1c5cab","#184f95","#104281","#0d366b"];
+const N = (v, d = 1) => v.toLocaleString("pt-BR", {minimumFractionDigits: d, maximumFractionDigits: d});
+const hh = h => String(h).padStart(2, "0") + "h";
+const tip = document.getElementById("tip");
+
+let DADOS = null, ATUAL = "SE";
+
+function corIntensidade(v, min, max) {
+  if (max - min < 1e-6) return RAMPA[6];
+  const t = Math.min(1, Math.max(0, (v - min) / (max - min)));
+  return RAMPA[Math.round(t * (RAMPA.length - 1))];
+}
+
+function mostrarTip(evt, html) {
+  tip.innerHTML = html;
+  tip.style.opacity = 1;
+  const r = tip.getBoundingClientRect();
+  let x = evt.clientX + 14, y = evt.clientY + 14;
+  if (x + r.width > innerWidth - 8) x = evt.clientX - r.width - 14;
+  if (y + r.height > innerHeight - 8) y = evt.clientY - r.height - 14;
+  tip.style.left = x + "px";
+  tip.style.top = y + "px";
+}
+const esconderTip = () => { tip.style.opacity = 0; };
+
+/* ---------- o relógio ---------- */
+function desenharRelogio(b) {
+  const horas = b.horas, R = 250, cx = 260, cy = 260, rOut = 196, rIn = 124;
+  const vals = horas.map(h => h.intensidade);
+  const perfil = b.perfil_medio_30d.map(p => p.intensidade);
+  const min = Math.min(...vals, ...perfil), max = Math.max(...vals, ...perfil);
+  document.getElementById("escala-faixa").textContent = `${N(min, 0)} – ${N(max, 0)} kg CO₂eq/MWh`;
+
+  const ang = h => (h * 15 - 90) * Math.PI / 180;
+  const pt = (h, r) => [cx + r * Math.cos(ang(h)), cy + r * Math.sin(ang(h))];
+
+  const setor = (h, r1, r2) => {
+    const [x1, y1] = pt(h + 0.02, r2), [x2, y2] = pt(h + 0.98, r2);
+    const [x3, y3] = pt(h + 0.98, r1), [x4, y4] = pt(h + 0.02, r1);
+    return `M${x1} ${y1}A${r2} ${r2} 0 0 1 ${x2} ${y2}L${x3} ${y3}A${r1} ${r1} 0 0 0 ${x4} ${y4}Z`;
+  };
+  const arco = (ini, fim, r) => {
+    const [x1, y1] = pt(ini, r), [x2, y2] = pt(fim, r);
+    const largo = ((fim - ini + 24) % 24) > 12 ? 1 : 0;
+    return `M${x1} ${y1}A${r} ${r} 0 ${largo} 1 ${x2} ${y2}`;
+  };
+
+  let s = `<svg viewBox="0 0 ${2 * R + 20} ${2 * R + 20}" role="img" aria-label="Anel de 24 horas colorido pela intensidade de carbono no dia ${b.dia_referencia}">`;
+
+  horas.forEach(h => {
+    s += `<path d="${setor(h.h, rIn, rOut)}" fill="${corIntensidade(h.intensidade, min, max)}"
+      stroke="var(--surface)" stroke-width="2" data-h="${h.h}" data-i="${h.intensidade}" data-r="${h.pct_renov}"
+      style="cursor:crosshair"/>`;
+  });
+
+  // marcadores das janelas
+  const marca = (j, cor, texto) => {
+    const meio = (j.inicio + 1.5) % 24;
+    const [lx, ly] = pt(meio, rOut + 34);
+    const anc = Math.cos(ang(meio)) > .3 ? "start" : Math.cos(ang(meio)) < -.3 ? "end" : "middle";
+    return `<path d="${arco(j.inicio + .05, j.inicio + 2.95, rOut + 9)}" stroke="${cor}" stroke-width="6"
+        fill="none" stroke-linecap="round"/>
+      <text x="${lx}" y="${ly}" text-anchor="${anc}" fill="${cor}" font-size="16" font-weight="650">${texto}</text>
+      <text x="${lx}" y="${ly + 19}" text-anchor="${anc}" fill="var(--ink-2)" font-size="15"
+        style="font-variant-numeric:tabular-nums">${hh(j.inicio)}–${hh(j.fim)} · ${N(j.intensidade, 0)}</text>`;
+  };
+  s += marca(b.melhor_janela, "var(--good)", "▲ mais limpa");
+  s += marca(b.pior_janela, "var(--critical)", "▼ mais suja");
+
+  // ticks de hora
+  for (let h = 0; h < 24; h += 3) {
+    const [tx, ty] = pt(h + .5, rIn - 16);
+    s += `<text x="${tx}" y="${ty + 5}" text-anchor="middle" fill="var(--ink-muted)" font-size="14"
+      style="font-variant-numeric:tabular-nums">${hh(h)}</text>`;
+  }
+
+  const media = vals.reduce((a, v) => a + v, 0) / vals.length;
+  s += `<text x="${cx}" y="${cy - 14}" text-anchor="middle" fill="var(--ink)" font-size="42" font-weight="680"
+      style="font-variant-numeric:tabular-nums">${N(media, 0)}</text>
+    <text x="${cx}" y="${cy + 10}" text-anchor="middle" fill="var(--ink-2)" font-size="14">kg CO₂eq/MWh</text>
+    <text x="${cx}" y="${cy + 32}" text-anchor="middle" fill="var(--ink-muted)" font-size="13">média do dia</text>
+    </svg>`;
+
+  const box = document.getElementById("relogio");
+  box.innerHTML = s;
+  box.querySelectorAll("path[data-h]").forEach(p => {
+    p.addEventListener("mousemove", e => mostrarTip(e,
+      `<b>${hh(+p.dataset.h)} – ${hh((+p.dataset.h + 1) % 24)}</b><br>
+       ${N(+p.dataset.i)} kg CO₂eq/MWh<br>
+       ${N(+p.dataset.r * 100)}% renovável`));
+    p.addEventListener("mouseleave", esconderTip);
+  });
+}
+
+/* ---------- mix empilhado ---------- */
+function desenharMix(b) {
+  const W = 1060, H = 340, ML = 62, MR = 20, MT = 16, MB = 40;
+  const pw = W - ML - MR, ph = H - MT - MB, hs = b.horas;
+  const series = [
+    {k: "term", nome: "Térmica", cor: "var(--cat-term)"},
+    {k: "hidr", nome: "Hidráulica", cor: "var(--cat-hidr)"},
+    {k: "eol", nome: "Eólica", cor: "var(--cat-eol)"},
+    {k: "sol", nome: "Solar", cor: "var(--cat-sol)"},
+  ];
+  const totais = hs.map(h => series.reduce((a, s) => a + h[s.k], 0));
+  const cargas = hs.map(h => h.carga || 0);
+  const ymax = Math.max(...totais, ...cargas) * 1.08;
+  const x = i => ML + (i / (hs.length - 1)) * pw;
+  const y = v => MT + ph - (v / ymax) * ph;
+
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Área empilhada da geração por fonte ao longo do dia">`;
+  for (let g = 0; g <= 4; g++) {
+    const v = ymax * g / 4;
+    s += `<line x1="${ML}" x2="${W - MR}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)" stroke-width="1"/>
+      <text x="${ML - 10}" y="${y(v) + 4}" text-anchor="end" fill="var(--ink-muted)" font-size="13"
+        style="font-variant-numeric:tabular-nums">${(v / 1000).toFixed(0)} GW</text>`;
+  }
+  let base = hs.map(() => 0);
+  const rotulos = [];
+  series.forEach(se => {
+    const topo = hs.map((h, i) => base[i] + h[se.k]);
+    let d = `M${x(0)} ${y(base[0])}`;
+    topo.forEach((v, i) => { d += `L${x(i)} ${y(v)}`; });
+    for (let i = hs.length - 1; i >= 0; i--) d += `L${x(i)} ${y(base[i])}`;
+    s += `<path d="${d}Z" fill="${se.cor}" stroke="var(--surface)" stroke-width="2"/>`;
+    // rotulo direto no ponto mais espesso da faixa (exigido pela regra de alivio
+    // de contraste: identidade nunca depende so da cor)
+    let melhor = 0, espessura = 0;
+    hs.forEach((h, i) => { if (h[se.k] > espessura) { espessura = h[se.k]; melhor = i; } });
+    if (y(base[melhor]) - y(topo[melhor]) > 22) {
+      rotulos.push(`<text x="${x(melhor)}" y="${(y(base[melhor]) + y(topo[melhor])) / 2 + 5}"
+        text-anchor="middle" font-size="14" font-weight="620" fill="var(--ink)"
+        stroke="var(--surface)" stroke-width="3.5" paint-order="stroke">${se.nome}</text>`);
+    }
+    base = topo;
+  });
+  s += rotulos.join("");
+  let dl = "";
+  cargas.forEach((v, i) => { dl += (i ? "L" : "M") + x(i) + " " + y(v); });
+  s += `<path d="${dl}" fill="none" stroke="var(--surface)" stroke-width="5"/>
+        <path d="${dl}" fill="none" stroke="var(--ink)" stroke-width="2" stroke-dasharray="6 4"/>`;
+  for (let h = 0; h < 24; h += 3) {
+    s += `<text x="${x(h)}" y="${H - 12}" text-anchor="middle" fill="var(--ink-muted)" font-size="13"
+      style="font-variant-numeric:tabular-nums">${hh(h)}</text>`;
+  }
+  hs.forEach((h, i) => {
+    s += `<rect x="${x(i) - pw / 48}" y="${MT}" width="${pw / 24}" height="${ph}" fill="transparent"
+      data-i="${i}" style="cursor:crosshair"/>`;
+  });
+  s += `</svg>`;
+
+  const fig = document.getElementById("fig-mix");
+  fig.innerHTML = s + `<div class="legenda">` +
+    series.map(se => `<span class="chave"><span class="swatch" style="background:${se.cor}"></span>${se.nome}</span>`).join("") +
+    `<span class="chave"><span class="swatch" style="background:transparent;border:0;border-top:2px dashed var(--ink);height:0;border-radius:0"></span>Carga do subsistema</span></div>
+    <figcaption>Geração em MWmed no subsistema ${b.nome}, dia ${dataBR(b.dia_referencia)}. Fonte: ONS.</figcaption>`;
+  fig.querySelectorAll("rect[data-i]").forEach(r => {
+    r.addEventListener("mousemove", e => {
+      const h = hs[+r.dataset.i];
+      mostrarTip(e, `<b>${hh(h.h)}</b><br>` +
+        series.map(se => `${se.nome}: ${N(h[se.k] / 1000, 1)} GW`).join("<br>") +
+        `<br>Carga: ${N((h.carga || 0) / 1000, 1)} GW<br>${N(h.pct_renov * 100)}% renovável`);
+    });
+    r.addEventListener("mouseleave", esconderTip);
+  });
+}
+
+/* ---------- dia vs média 30d ---------- */
+function desenharComparacao(b) {
+  const W = 1060, H = 300, ML = 62, MR = 110, MT = 18, MB = 40;
+  const pw = W - ML - MR, ph = H - MT - MB;
+  const dia = b.horas.map(h => h.intensidade);
+  const med = b.perfil_medio_30d.map(p => p.intensidade);
+  const todos = [...dia, ...med];
+  const lo = Math.min(...todos) * .94, hi = Math.max(...todos) * 1.04;
+  const x = i => ML + (i / 23) * pw;
+  const y = v => MT + ph - ((v - lo) / (hi - lo)) * ph;
+  const linha = arr => arr.map((v, i) => (i ? "L" : "M") + x(i) + " " + y(v)).join("");
+
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Comparação entre o dia de referência e a média de 30 dias">`;
+  for (let g = 0; g <= 3; g++) {
+    const v = lo + (hi - lo) * g / 3;
+    s += `<line x1="${ML}" x2="${W - MR}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/>
+      <text x="${ML - 10}" y="${y(v) + 4}" text-anchor="end" fill="var(--ink-muted)" font-size="13"
+        style="font-variant-numeric:tabular-nums">${N(v, 0)}</text>`;
+  }
+  s += `<path d="${linha(med)}" fill="none" stroke="var(--ink-muted)" stroke-width="2" stroke-dasharray="7 5"/>
+        <path d="${linha(dia)}" fill="none" stroke="var(--s450)" stroke-width="2.5" stroke-linejoin="round"/>
+        <text x="${x(23) + 10}" y="${y(dia[23]) + 4}" fill="var(--s450)" font-size="14" font-weight="620">dia ${dataBR(b.dia_referencia).slice(0, 5)}</text>
+        <text x="${x(23) + 10}" y="${y(med[23]) + 4}" fill="var(--ink-muted)" font-size="14">média 30 d</text>`;
+  for (let h = 0; h < 24; h += 3) {
+    s += `<text x="${x(h)}" y="${H - 12}" text-anchor="middle" fill="var(--ink-muted)" font-size="13"
+      style="font-variant-numeric:tabular-nums">${hh(h)}</text>`;
+  }
+  b.horas.forEach((h, i) => {
+    s += `<rect x="${x(i) - pw / 46}" y="${MT}" width="${pw / 23}" height="${ph}" fill="transparent" data-i="${i}" style="cursor:crosshair"/>`;
+  });
+  s += `</svg>`;
+
+  const fig = document.getElementById("fig-comparacao");
+  fig.innerHTML = s + `<div class="legenda">
+      <span class="chave"><span class="swatch" style="background:var(--s450)"></span>Dia de referência</span>
+      <span class="chave"><span class="swatch" style="background:var(--ink-muted)"></span>Média dos últimos 30 dias</span>
+    </div><figcaption>Intensidade em kg CO₂eq/MWh, subsistema ${b.nome}.</figcaption>`;
+  fig.querySelectorAll("rect[data-i]").forEach(r => {
+    r.addEventListener("mousemove", e => {
+      const i = +r.dataset.i;
+      mostrarTip(e, `<b>${hh(i)}</b><br>Dia: ${N(dia[i])}<br>Média 30 d: ${N(med[i])} kg CO₂eq/MWh`);
+    });
+    r.addEventListener("mouseleave", esconderTip);
+  });
+}
+
+/* ---------- decisão ---------- */
+function preencherDecisao(b) {
+  document.getElementById("hero").innerHTML =
+    `${N(b.delta_kg_por_mwh)} <span style="font-size:.32em;font-weight:600">kg CO₂eq</span>
+     <small>evitados por MWh deslocado da janela mais suja para a mais limpa</small>`;
+  document.getElementById("frase").innerHTML =
+    `No dia ${dataBR(b.dia_referencia)}, deslocar 1 MWh de carga flexível das
+     <b>${hh(b.pior_janela.inicio)}–${hh(b.pior_janela.fim)}</b> para as
+     <b>${hh(b.melhor_janela.inicio)}–${hh(b.melhor_janela.fim)}</b> evitaria
+     <b>${N(b.delta_kg_por_mwh)} kg de CO₂eq</b> — mesma produção, mesmo consumo em kWh.`;
+  atualizarCalculo();
+}
+
+function atualizarCalculo() {
+  const b = DADOS.subsistemas[ATUAL];
+  const mwh = Math.max(0, +document.getElementById("carga").value || 0);
+  const ano = mwh * 12 * b.delta_kg_por_mwh / 1000;
+  const lo = mwh * 12 * b.delta_sensibilidade.min / 1000;
+  const hi = mwh * 12 * b.delta_sensibilidade.max / 1000;
+  document.getElementById("resultado").innerHTML = mwh
+    ? `→ <b>${N(ano, 1)} t CO₂eq por ano</b><br>
+       <span class="muted" style="font-size:14px">faixa de sensibilidade: ${N(lo, 1)} a ${N(hi, 1)} t/ano</span>`
+    : `<span class="muted">informe a carga deslocável</span>`;
+}
+
+/* ---------- metodologia ---------- */
+function preencherMetodologia() {
+  const f = DADOS.fatores_emissao, tb = document.querySelector("#tabela-fatores tbody");
+  tb.innerHTML = Object.entries(f.fatores).map(([k, v]) => `
+    <tr>
+      <td><b>${v.rotulo}</b></td>
+      <td class="num">${v.valor}${v.minimo ? ` <span class="muted">(${v.minimo}–${v.maximo})</span>` : ""}</td>
+      <td><span class="selo estimado">estimado</span></td>
+      <td>${v.fonte}</td>
+    </tr>`).join("") + `
+    <tr>
+      <td><b>% renovável</b></td>
+      <td class="num">—</td>
+      <td><span class="selo medido">medido</span></td>
+      <td>Razão direta entre geração renovável e geração total publicadas pelo ONS. Não depende de fator algum.</td>
+    </tr>`;
+
+  const b = DADOS.subsistemas[ATUAL];
+  document.getElementById("notas-metodologia").innerHTML = `
+    <p class="nota"><b>A térmica é um bloco único.</b> ${f.fatores.termica.premissa}</p>
+    <p class="nota"><b>Sensibilidade.</b> Variando o fator da térmica entre ${f.fatores.termica.minimo} e
+      ${f.fatores.termica.maximo} kg CO₂eq/MWh, o ganho do deslocamento no dia de referência fica entre
+      <b>${N(b.delta_sensibilidade.min)}</b> e <b>${N(b.delta_sensibilidade.max)} kg CO₂eq por MWh</b>
+      (valor central: ${N(b.delta_kg_por_mwh)}). A conclusão — existe uma janela melhor e ela vale alguma coisa —
+      não muda em nenhum ponto dessa faixa.</p>
+    <p class="nota"><b>Ciclo de vida, não só queima.</b> ${f.validacao.descricao}
+      Nos últimos 45 dias, a média do subsistema ${b.nome} foi de ${N(b.media_periodo, 0)} kg CO₂eq/MWh contando
+      todo o ciclo de vida, dos quais ${N(b.media_periodo_termica, 0)} vêm da térmica — é esta segunda parcela que
+      se compara à faixa do MCTI.</p>
+    <p class="nota"><b>Limitações.</b> O balanço do ONS não separa a nuclear de Angra, que entra na térmica do
+      Sudeste/Centro-Oeste e puxa o fator central para cima. Os dados passam por consistência recorrente e podem
+      ser revisados depois de publicados. A página não faz previsão: só mostra o que já foi medido.</p>`;
+}
+
+/* ---------- infra ---------- */
+function dataBR(iso) {
+  const [a, m, d] = iso.split("-");
+  return `${d}/${m}/${a}`;
+}
+
+function render() {
+  const b = DADOS.subsistemas[ATUAL];
+  document.getElementById("aviso").innerHTML =
+    `<span><b>Dia de referência: ${dataBR(b.dia_referencia)}</b> — última hora fechada publicada pelo ONS
+      (${new Date(b.ultima_hora_ons).getHours()}h).</span>
+     <span class="muted">O balanço do ONS é publicado duas vezes por dia e sai com alguns dias de defasagem.
+      Isto não é tempo real.</span>`;
+  desenharRelogio(b);
+  preencherDecisao(b);
+  desenharMix(b);
+  desenharComparacao(b);
+  preencherMetodologia();
+  document.getElementById("rodape-gerado").textContent =
+    "Página gerada automaticamente em " + new Date(DADOS.gerado_em).toLocaleString("pt-BR") +
+    " por um GitHub Action, sem servidor e sem banco de dados.";
+}
+
+function montarSeletor() {
+  const sel = document.getElementById("selector");
+  sel.innerHTML = Object.values(DADOS.subsistemas).map(b =>
+    `<button data-s="${b.sigla}" aria-pressed="${b.sigla === ATUAL}">${b.nome}</button>`).join("");
+  sel.querySelectorAll("button").forEach(bt => bt.addEventListener("click", () => {
+    ATUAL = bt.dataset.s;
+    sel.querySelectorAll("button").forEach(o => o.setAttribute("aria-pressed", o.dataset.s === ATUAL));
+    render();
+  }));
+}
+
+document.getElementById("carga").addEventListener("input", atualizarCalculo);
+addEventListener("resize", () => { if (DADOS) render(); });
+
+fetch("data/sin.json", {cache: "no-store"})
+  .then(r => r.ok ? r.json() : Promise.reject(r.status))
+  .then(d => { DADOS = d; ATUAL = d.padrao; montarSeletor(); render(); })
+  .catch(e => {
+    document.getElementById("relogio").innerHTML =
+      `<p class="erro">Não foi possível carregar os dados (${e}). O arquivo <code>data/sin.json</code> é gerado pelo GitHub Action.</p>`;
+  });
+</script>
+</body>
+</html>

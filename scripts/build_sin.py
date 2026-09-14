@@ -2,8 +2,9 @@
 Relogio de Carbono do SIN — pipeline de dados.
 
 Baixa o Balanco de Energia nos Subsistemas do ONS (base horaria), calcula o
-percentual renovavel e a intensidade de carbono hora a hora, identifica a melhor
-e a pior janela de 3 horas e grava docs/data/sin.json.
+percentual renovavel e a intensidade de carbono hora a hora para os quatro
+subsistemas, identifica a melhor e a pior janela de 3 horas e grava
+docs/data/sin.json.
 
 Fonte: ONS, Portal de Dados Abertos (licenca CC-BY).
 https://dados.ons.org.br/dataset/balanco-energia-subsistema
@@ -30,13 +31,16 @@ BASE_S3 = (
     "balanco_energia_subsistema_ho/BALANCO_ENERGIA_SUBSISTEMA_{ano}.{ext}"
 )
 
-SUBSISTEMAS = ["SE", "S", "NE", "N"]
-DIAS_JANELA = 45          # quanto puxamos do historico
-DIAS_PERFIL_MEDIO = 30    # perfil medio exibido na pagina
+SUBSISTEMAS = {
+    "SE": "Sudeste / Centro-Oeste",
+    "S": "Sul",
+    "NE": "Nordeste",
+    "N": "Norte",
+}
+DIAS_JANELA = 45
+DIAS_PERFIL_MEDIO = 30
 FUSO_BR = timezone(timedelta(hours=-3))
 
-# Palavras-chave para resolver os nomes reais das colunas sem depender do
-# esquema exato documentado. Risco no 1 do briefing.
 PISTAS = {
     "instante": ["din_instante", "instante", "data"],
     "subsistema": ["id_subsistema", "cod_subsistema", "subsistema"],
@@ -48,6 +52,8 @@ PISTAS = {
     "carga": ["val_carga", "carga"],
     "intercambio": ["intercambio"],
 }
+
+FONTES = ["hidraulica", "termica", "eolica", "solar", "nuclear"]
 
 
 def log(msg: str) -> None:
@@ -74,7 +80,6 @@ def baixar(ano: int) -> pd.DataFrame:
 
 
 def resolver_colunas(df: pd.DataFrame) -> dict[str, str | None]:
-    """Mapeia nomes logicos -> nomes reais das colunas, por palavra-chave."""
     reais = {c.lower(): c for c in df.columns}
     mapa: dict[str, str | None] = {}
     for logico, pistas in PISTAS.items():
@@ -93,69 +98,67 @@ def resolver_colunas(df: pd.DataFrame) -> dict[str, str | None]:
 def diagnostico(df: pd.DataFrame, mapa: dict[str, str | None]) -> None:
     log(f"shape={df.shape}")
     log("colunas reais: " + ", ".join(map(str, df.columns)))
-    log("dtypes: " + ", ".join(f"{c}={t}" for c, t in df.dtypes.items()))
     log("mapeamento: " + json.dumps(mapa, ensure_ascii=False))
     faltando = [k for k, v in mapa.items() if v is None]
     if faltando:
         log(f"AVISO — sem coluna correspondente para: {faltando}")
-    log("amostra:\n" + df.head(3).to_string())
 
 
 def preparar(df: pd.DataFrame, mapa: dict[str, str | None], subsistema: str) -> pd.DataFrame:
-    col_inst = mapa["instante"]
-    col_sub = mapa["subsistema"]
+    col_inst, col_sub = mapa["instante"], mapa["subsistema"]
     if not col_inst or not col_sub:
         raise RuntimeError("colunas de instante/subsistema nao encontradas")
 
     df = df.copy()
     df[col_inst] = pd.to_datetime(df[col_inst], errors="coerce")
     df = df.dropna(subset=[col_inst])
-
-    # din_instante ja vem em horario de Brasilia; nao convertemos para UTC.
-    if df[col_inst].dt.tz is not None:
+    if df[col_inst].dt.tz is not None:  # din_instante ja vem em horario de Brasilia
         df[col_inst] = df[col_inst].dt.tz_localize(None)
 
     df = df[df[col_sub].astype(str).str.upper().str.strip() == subsistema]
     if df.empty:
-        vistos = sorted(set(map(str, df[col_sub].unique()))) if col_sub in df else []
-        raise RuntimeError(f"nenhuma linha para o subsistema {subsistema} (vistos: {vistos})")
+        raise RuntimeError(f"nenhuma linha para o subsistema {subsistema}")
 
-    corte = df[col_inst].max() - pd.Timedelta(days=DIAS_JANELA)
+    corte = df[col_inst].max() - pd.Timedelta(value=DIAS_JANELA, unit="D")
     df = df[df[col_inst] >= corte].sort_values(col_inst)
 
-    for logico in ("hidraulica", "termica", "eolica", "solar", "nuclear", "carga", "intercambio"):
+    for logico in FONTES + ["carga", "intercambio"]:
         col = mapa.get(logico)
         df[logico] = pd.to_numeric(df[col], errors="coerce") if col else 0.0
-    df[["hidraulica", "termica", "eolica", "solar", "nuclear"]] = df[
-        ["hidraulica", "termica", "eolica", "solar", "nuclear"]
-    ].fillna(0.0)
+    df[FONTES] = df[FONTES].fillna(0.0)
 
     df = df.rename(columns={col_inst: "instante"})
-    return df[
-        ["instante", "hidraulica", "termica", "eolica", "solar", "nuclear", "carga", "intercambio"]
-    ]
+    return df[["instante"] + FONTES + ["carga", "intercambio"]]
+
+
+def intensidade_com(df: pd.DataFrame, fator_termica: float, f: dict) -> pd.Series:
+    return (
+        df["hidraulica"] * f["hidraulica"]
+        + df["eolica"] * f["eolica"]
+        + df["solar"] * f["solar"]
+        + df["termica"] * fator_termica
+    ) / df["total"]
 
 
 def calcular(df: pd.DataFrame, fatores: dict) -> pd.DataFrame:
     f = {k: v["valor"] for k, v in fatores["fatores"].items()}
+    t = fatores["fatores"]["termica"]
     df = df.copy()
     df["renovavel"] = df["hidraulica"] + df["eolica"] + df["solar"]
     df["total"] = df["renovavel"] + df["termica"] + df["nuclear"]
     df = df[df["total"] > 0]
 
     df["pct_renov"] = df["renovavel"] / df["total"]
-    df["intensidade"] = (
-        df["hidraulica"] * f["hidraulica"]
-        + df["eolica"] * f["eolica"]
-        + df["solar"] * f["solar"]
-        + df["nuclear"] * f["nuclear"]
-        + df["termica"] * f["termica"]
-    ) / df["total"]
+    df["intensidade"] = intensidade_com(df, t["valor"], f)
+    df["intensidade_min"] = intensidade_com(df, t["minimo"], f)
+    df["intensidade_max"] = intensidade_com(df, t["maximo"], f)
+    # Parcela que vem so da termica — comparavel ao fator do MCTI, que conta
+    # apenas queima de combustivel e ignora o ciclo de vida das renovaveis.
+    df["intensidade_termica"] = df["termica"] * t["valor"] / df["total"]
     return df
 
 
 def janelas_3h(serie_por_hora: pd.Series) -> tuple[dict, dict]:
-    """Melhor e pior janela de 3 horas consecutivas (circular no dia)."""
     horas = [float(serie_por_hora.get(h, float("nan"))) for h in range(24)]
     medias = []
     for inicio in range(24):
@@ -173,19 +176,28 @@ def janelas_3h(serie_por_hora: pd.Series) -> tuple[dict, dict]:
     )
 
 
-def montar_json(df: pd.DataFrame, subsistema: str, fatores: dict) -> dict:
+def media_janela(serie: pd.Series, inicio: int) -> float:
+    return sum(float(serie.get((inicio + k) % 24, float("nan"))) for k in range(3)) / 3
+
+
+def bloco_subsistema(df: pd.DataFrame, sigla: str, fatores: dict) -> dict:
     ultimo = df["instante"].max()
     dia_alvo = ultimo.normalize()
     dia = df[df["instante"].dt.normalize() == dia_alvo]
-    # Se o ultimo dia ainda esta incompleto, usa o dia anterior fechado para as janelas.
-    if len(dia) < 20:
-        dia_alvo = dia_alvo - pd.Timedelta(days=1)
+    if len(dia) < 24:  # ultimo dia incompleto: usa o dia fechado anterior
+        dia_alvo = dia_alvo - pd.Timedelta(value=1, unit="D")
         dia = df[df["instante"].dt.normalize() == dia_alvo]
 
-    por_hora = dia.set_index(dia["instante"].dt.hour)["intensidade"]
-    melhor, pior = janelas_3h(por_hora)
+    por_hora = dia.set_index(dia["instante"].dt.hour)
+    melhor, pior = janelas_3h(por_hora["intensidade"])
 
-    corte30 = ultimo - pd.Timedelta(days=DIAS_PERFIL_MEDIO)
+    # Sensibilidade: o ganho entre janelas nos extremos da faixa da termica.
+    sens = {}
+    for rotulo, coluna in (("min", "intensidade_min"), ("max", "intensidade_max")):
+        s = por_hora[coluna]
+        sens[rotulo] = round(media_janela(s, pior["inicio"]) - media_janela(s, melhor["inicio"]), 1)
+
+    corte30 = ultimo - pd.Timedelta(value=DIAS_PERFIL_MEDIO, unit="D")
     perfil = (
         df[df["instante"] >= corte30]
         .groupby(df["instante"].dt.hour)[["pct_renov", "intensidade"]]
@@ -196,18 +208,17 @@ def montar_json(df: pd.DataFrame, subsistema: str, fatores: dict) -> dict:
         return ts.to_pydatetime().replace(tzinfo=FUSO_BR).isoformat()
 
     return {
-        "gerado_em": datetime.now(FUSO_BR).isoformat(timespec="seconds"),
+        "sigla": sigla,
+        "nome": SUBSISTEMAS[sigla],
         "ultima_hora_ons": iso(ultimo),
         "dia_referencia": dia_alvo.date().isoformat(),
-        "subsistema": subsistema,
         "horas": [
             {
-                "h": iso(r.instante),
+                "h": int(r.instante.hour),
                 "hidr": round(r.hidraulica, 1),
                 "term": round(r.termica, 1),
                 "eol": round(r.eolica, 1),
                 "sol": round(r.solar, 1),
-                "nuc": round(r.nuclear, 1),
                 "carga": round(r.carga, 1) if pd.notna(r.carga) else None,
                 "pct_renov": round(r.pct_renov, 4),
                 "intensidade": round(r.intensidade, 1),
@@ -217,20 +228,21 @@ def montar_json(df: pd.DataFrame, subsistema: str, fatores: dict) -> dict:
         "perfil_medio_30d": [
             {
                 "hora": int(h),
-                "pct_renov": round(float(linha.pct_renov), 4),
-                "intensidade": round(float(linha.intensidade), 1),
+                "pct_renov": round(float(l.pct_renov), 4),
+                "intensidade": round(float(l.intensidade), 1),
             }
-            for h, linha in perfil.iterrows()
+            for h, l in perfil.iterrows()
         ],
         "melhor_janela": melhor,
         "pior_janela": pior,
         "delta_kg_por_mwh": round(pior["intensidade"] - melhor["intensidade"], 1),
-        "fatores_emissao": fatores,
+        "delta_sensibilidade": sens,
+        "media_periodo": round(float(df["intensidade"].mean()), 1),
+        "media_periodo_termica": round(float(df["intensidade_termica"].mean()), 1),
     }
 
 
 def main() -> int:
-    subsistema = os.environ.get("SUBSISTEMA", "SE").upper()
     ano = int(os.environ.get("ANO", datetime.now(FUSO_BR).year))
     fatores = json.loads(FATORES_PATH.read_text(encoding="utf-8"))
 
@@ -238,16 +250,30 @@ def main() -> int:
     mapa = resolver_colunas(bruto)
     diagnostico(bruto, mapa)
 
-    df = preparar(bruto, mapa, subsistema)
-    log(f"apos filtro: {len(df)} linhas, de {df['instante'].min()} a {df['instante'].max()}")
+    blocos = {}
+    for sigla in SUBSISTEMAS:
+        df = calcular(preparar(bruto, mapa, sigla), fatores)
+        blocos[sigla] = bloco_subsistema(df, sigla, fatores)
+        b = blocos[sigla]
+        log(
+            f"{sigla}: dia {b['dia_referencia']} | melhor {b['melhor_janela']['inicio']}h "
+            f"({b['melhor_janela']['intensidade']}) | pior {b['pior_janela']['inicio']}h "
+            f"({b['pior_janela']['intensidade']}) | delta {b['delta_kg_por_mwh']} "
+            f"(faixa {b['delta_sensibilidade']['min']}–{b['delta_sensibilidade']['max']}) | "
+            f"media 45d {b['media_periodo']} (so termica {b['media_periodo_termica']})"
+        )
 
-    df = calcular(df, fatores)
-    saida = montar_json(df, subsistema, fatores)
-
-    media_periodo = float(df["intensidade"].mean())
-    log(f"VALIDACAO — intensidade media do periodo: {media_periodo:.1f} kg CO2eq/MWh")
-    log(f"melhor janela: {saida['melhor_janela']} | pior: {saida['pior_janela']}")
-    log(f"delta: {saida['delta_kg_por_mwh']} kg CO2eq por MWh deslocado")
+    saida = {
+        "gerado_em": datetime.now(FUSO_BR).isoformat(timespec="seconds"),
+        "padrao": "SE",
+        "subsistemas": blocos,
+        "fatores_emissao": fatores,
+        "fonte": {
+            "nome": "ONS — Balanco de Energia nos Subsistemas (base horaria)",
+            "url": "https://dados.ons.org.br/dataset/balanco-energia-subsistema",
+            "licenca": "Creative Commons Attribution",
+        },
+    }
 
     SAIDA.parent.mkdir(parents=True, exist_ok=True)
     SAIDA.write_text(json.dumps(saida, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")

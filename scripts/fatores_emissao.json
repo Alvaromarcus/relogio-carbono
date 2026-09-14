@@ -1,37 +1,37 @@
 {
   "unidade": "kg CO2eq/MWh",
-  "escopo": "ciclo de vida (construcao, operacao, combustivel, descomissionamento)",
+  "escopo": "ciclo de vida (construcao, combustivel, operacao, descomissionamento)",
+  "referencia": "IPCC AR5, WG3, Annex III, Table A.III.2 - medianas de emissoes de ciclo de vida por tecnologia",
+  "referencia_url": "https://www.ipcc.ch/site/assets/uploads/2018/02/ipcc_wg3_ar5_annex-iii.pdf",
   "fatores": {
     "hidraulica": {
       "valor": 24,
-      "fonte": "IPCC AR5, WG3, Annex III, Table A.III.2 - mediana de ciclo de vida para hidreletrica",
-      "url": "https://www.ipcc.ch/site/assets/uploads/2018/02/ipcc_wg3_ar5_annex-iii.pdf"
+      "rotulo": "Hidraulica",
+      "fonte": "IPCC AR5, Annex III - mediana de ciclo de vida, hidreletrica"
     },
     "eolica": {
       "valor": 11,
-      "fonte": "IPCC AR5, WG3, Annex III, Table A.III.2 - mediana de ciclo de vida para eolica onshore",
-      "url": "https://www.ipcc.ch/site/assets/uploads/2018/02/ipcc_wg3_ar5_annex-iii.pdf"
+      "rotulo": "Eolica",
+      "fonte": "IPCC AR5, Annex III - mediana de ciclo de vida, eolica onshore"
     },
     "solar": {
       "valor": 48,
-      "fonte": "IPCC AR5, WG3, Annex III, Table A.III.2 - mediana de ciclo de vida para solar fotovoltaica de grande porte",
-      "url": "https://www.ipcc.ch/site/assets/uploads/2018/02/ipcc_wg3_ar5_annex-iii.pdf"
-    },
-    "nuclear": {
-      "valor": 12,
-      "fonte": "IPCC AR5, WG3, Annex III, Table A.III.2 - mediana de ciclo de vida para nuclear",
-      "url": "https://www.ipcc.ch/site/assets/uploads/2018/02/ipcc_wg3_ar5_annex-iii.pdf"
+      "rotulo": "Solar",
+      "fonte": "IPCC AR5, Annex III - mediana de ciclo de vida, fotovoltaica de grande porte"
     },
     "termica": {
       "valor": 490,
-      "fonte": "PROVISORIO - a ser substituido por media ponderada do parque termico do SIN (BEN/EPE) com fatores IPCC AR5 por combustivel",
-      "url": "https://www.ipcc.ch/site/assets/uploads/2018/02/ipcc_wg3_ar5_annex-iii.pdf",
-      "pendente": true
+      "minimo": 230,
+      "maximo": 820,
+      "rotulo": "Termica",
+      "fonte": "IPCC AR5, Annex III - mediana do gas natural de ciclo combinado (490), tecnologia dominante no parque termico do SE/CO",
+      "premissa": "O ONS publica a geracao termica como um bloco unico: gas, carvao, oleo, biomassa e a nuclear de Angra entram juntos em val_gertermica. Sem abertura por combustivel, adotamos o gas de ciclo combinado como valor central e exibimos a faixa entre biomassa dedicada (230) e carvao (820) como analise de sensibilidade.",
+      "faixa_fonte": "IPCC AR5, Annex III - biomassa dedicada (230) e carvao (820)"
     }
   },
   "validacao": {
-    "descricao": "A media mensal calculada deve ficar na mesma ordem de grandeza do fator medio do SIN publicado pelo MCTI.",
-    "fonte": "MCTI/SIRENE - Fatores de Emissao de CO2 (fator medio para inventarios corporativos)",
+    "descricao": "O MCTI publica o fator medio do SIN contando apenas a queima de combustivel fossil; historicamente entre 0,04 e 0,10 tCO2/MWh (40 a 100 kg/MWh). A intensidade desta pagina e de ciclo de vida e inclui a construcao das renovaveis, entao fica acima dessa faixa por construcao, nao por erro.",
+    "fonte": "MCTI/SIRENE - Fatores de emissao de CO2 para inventarios corporativos",
     "url": "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/cgcl/paginas/fator-medio-inventarios-corporativos"
   }
 }
