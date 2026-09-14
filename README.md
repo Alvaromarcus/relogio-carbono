@@ -27,8 +27,18 @@ Servir o JSON do próprio domínio elimina CORS; o Action commitando no reposit�
 |---|---|
 | Percentual renovável por hora | **Medição.** Razão direta entre a geração renovável e a geração total publicadas pelo ONS. Não depende de premissa alguma. |
 | Intensidade de carbono por hora | **Estimativa.** Depende dos fatores de emissão de ciclo de vida do IPCC AR5, Annex III. |
+| Custo marginal de operação (CMO) | **Estimativa.** Calculado pelo modelo DESSEM do ONS. É a base do PLD, não a tarifa paga pelo consumidor. |
 
 O ONS publica a geração térmica como um bloco único — gás, carvão, óleo, biomassa e a nuclear de Angra entram juntos em `val_gertermica`. Sem abertura por combustível, o valor central adotado é o do gás de ciclo combinado (490 kg CO₂eq/MWh) e a página exibe a faixa entre biomassa dedicada (230) e carvão (820) como análise de sensibilidade. A seção "Metodologia e premissas" da própria página traz a tabela completa, com a fonte de cada fator.
+
+## Preço e carbono apontam para a mesma hora?
+
+A página cruza a intensidade de carbono com o [CMO Semi-Horário](https://dados.ons.org.br/dataset/cmo-semi-horario)
+do ONS, agregado por média para a hora cheia, e responde se a janela mais barata é também a mais limpa.
+
+A resposta muda por subsistema, e é por isso que a pergunta vale: no Sudeste/Centro-Oeste as duas janelas quase
+coincidem, enquanto no Sul e no Nordeste a correlação de postos entre preço e intensidade é fortemente negativa —
+lá, as horas mais baratas tendem a ser as mais sujas.
 
 ## Rodando local
 

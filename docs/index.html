@@ -15,6 +15,7 @@
   --s350:#5598e7; --s400:#3987e5; --s450:#2a78d6; --s500:#256abf; --s550:#1c5cab;
   --s600:#184f95; --s650:#104281; --s700:#0d366b;
   --cat-hidr:#2a78d6; --cat-term:#eb6834; --cat-eol:#1baf7a; --cat-sol:#eda100;
+  --cat-preco:#4a3aa7;
   --good:#0ca30c; --critical:#d03b3b;
   --shadow:0 1px 2px rgba(11,11,11,.06), 0 8px 24px rgba(11,11,11,.05);
 }
@@ -25,6 +26,7 @@
     --ink:#fff; --ink-2:#c3c2b7; --ink-muted:#898781;
     --grid:#2c2c2a; --axis:#383835; --ring-hair:rgba(255,255,255,.10);
     --cat-hidr:#3987e5; --cat-term:#d95926; --cat-eol:#199e70; --cat-sol:#c98500;
+    --cat-preco:#9085e9;
     --shadow:none;
   }
 }
@@ -103,6 +105,10 @@ figcaption{font-size:13.5px; color:var(--ink-muted); margin-top:12px}
 .tabela th{font-weight:600; color:var(--ink-2); font-size:13px; text-transform:uppercase; letter-spacing:.04em}
 .tabela td.num{text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap}
 .scroll-x{overflow-x:auto}
+/* Graficos densos ficam ilegiveis a 400px: rolam dentro do proprio cartao,
+   sem nunca provocar rolagem horizontal na pagina. */
+.chart-scroll{overflow-x:auto}
+@media (max-width:760px){ .chart-scroll > svg{min-width:640px} }
 @media (max-width:680px){
   .tabela thead{position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%)}
   .tabela tr{display:block; padding:12px 0; border-bottom:1px solid var(--grid)}
@@ -118,6 +124,11 @@ figcaption{font-size:13.5px; color:var(--ink-muted); margin-top:12px}
 .selo.estimado{color:var(--cat-term)}
 .nota{margin-top:14px; font-size:14.5px; color:var(--ink-2); line-height:1.55; max-width:78ch}
 .nota + .nota{margin-top:10px}
+.stats{display:flex; flex-wrap:wrap; gap:10px 34px; margin-top:20px; padding-top:16px; border-top:1px solid var(--grid)}
+.stats > div{display:flex; flex-direction:column; gap:2px}
+.stats .rot{font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-muted)}
+.stats b{font-size:21px; font-weight:650}
+.stats .det{font-size:13.5px; color:var(--ink-2)}
 
 footer{margin-top:44px; padding-top:20px; border-top:1px solid var(--grid); font-size:13.5px; color:var(--ink-2); line-height:1.65}
 footer a{text-decoration:underline; text-underline-offset:2px}
@@ -187,6 +198,15 @@ footer a{text-decoration:underline; text-underline-offset:2px}
     <figure class="card" id="fig-comparacao"></figure>
   </section>
 
+  <section id="sec-preco" hidden>
+    <div class="sec-head">
+      <h2>A hora mais limpa é também a mais barata?</h2>
+      <p>O Custo Marginal de Operação do ONS na mesma base horária do relógio. Indústria já desloca carga por preço — a pergunta é se essa decisão ajuda ou atrapalha o carbono.</p>
+    </div>
+    <div class="card painel" id="veredito"></div>
+    <figure class="card" id="fig-preco" style="margin-top:16px"></figure>
+  </section>
+
   <section>
     <div class="sec-head">
       <h2>Metodologia e premissas</h2>
@@ -206,6 +226,8 @@ footer a{text-decoration:underline; text-underline-offset:2px}
   <footer>
     <p><b>Fonte dos dados:</b> ONS — Operador Nacional do Sistema Elétrico, Portal de Dados Abertos, <a href="https://dados.ons.org.br/dataset/balanco-energia-subsistema">Balanço de Energia nos Subsistemas</a> (base horária), licença Creative Commons Attribution. Os dados podem ser revisados pelo ONS depois de publicados.</p>
     <p id="rodape-gerado"></p>
+    <p><b>Preço:</b> ONS, <a href="https://dados.ons.org.br/dataset/cmo-semi-horario">CMO Semi-Horário</a>,
+      estimado pelo modelo DESSEM e agregado por média para a hora cheia. Mesma licença CC-BY.</p>
     <p>Fatores de emissão: <a href="https://www.ipcc.ch/site/assets/uploads/2018/02/ipcc_wg3_ar5_annex-iii.pdf">IPCC AR5, WG3, Annex III</a>. Referência de validação: <a href="https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/cgcl/paginas/fator-medio-inventarios-corporativos">MCTI/SIRENE</a>.</p>
     <p><b>Licença deste projeto:</b> código em <a href="https://github.com/Alvaromarcus/relogio-carbono/blob/main/LICENSE">MIT</a>;
       textos, gráficos e dados derivados em <a href="https://creativecommons.org/licenses/by/4.0/deed.pt-br">CC BY 4.0</a>.
@@ -370,7 +392,7 @@ function desenharMix(b) {
   s += `</svg>`;
 
   const fig = document.getElementById("fig-mix");
-  fig.innerHTML = s + `<div class="legenda">` +
+  fig.innerHTML = `<div class="chart-scroll">${s}</div>` + `<div class="legenda">` +
     series.map(se => `<span class="chave"><span class="swatch" style="background:${se.cor}"></span>${se.nome}</span>`).join("") +
     `<span class="chave"><span class="swatch" style="background:transparent;border:0;border-top:2px dashed var(--ink);height:0;border-radius:0"></span>Carga do subsistema</span></div>
     <figcaption>Geração em MWmed no subsistema ${b.nome}, dia ${dataBR(b.dia_referencia)}. Fonte: ONS.</figcaption>`;
@@ -420,7 +442,7 @@ function desenharComparacao(b) {
   s += `</svg>`;
 
   const fig = document.getElementById("fig-comparacao");
-  fig.innerHTML = s + `<div class="legenda">
+  fig.innerHTML = `<div class="chart-scroll">${s}</div>` + `<div class="legenda">
       <span class="chave"><span class="swatch" style="background:var(--s450)"></span>Dia de referência</span>
       <span class="chave"><span class="swatch" style="background:var(--ink-muted)"></span>Média dos últimos 30 dias</span>
     </div><figcaption>Intensidade em kg CO₂eq/MWh, subsistema ${b.nome}.</figcaption>`;
@@ -503,6 +525,122 @@ function dataBR(iso) {
   return `${d}/${m}/${a}`;
 }
 
+/* ---------- preço × carbono ---------- */
+function textoCorrelacao(r) {
+  if (r === null || r === undefined) return "sem dados suficientes para avaliar";
+  if (r <= -0.3) return "andam em <b>sentidos opostos</b>: no geral, as horas mais baratas são as mais sujas";
+  if (r >= 0.3) return "andam <b>no mesmo sentido</b>: em geral, hora barata é hora limpa";
+  return "<b>praticamente não se relacionam</b> — preço não serve de atalho para carbono";
+}
+
+function preencherVeredito(b) {
+  const p = b.preco, box = document.getElementById("veredito");
+  const zero = p.horas_cmo_zero_30d, n = p.n_horas_correlacao;
+  const pctZero = zero !== null && n ? Math.round(100 * zero / n) : null;
+
+  box.innerHTML = `
+    <div class="hero tnum" style="font-size:clamp(30px,3.6vw,46px)">
+      ${p.coincidem
+        ? `São a mesma janela<small>No dia de referência, a hora mais barata e a mais limpa coincidem em
+             ${hh(p.janela_barata.inicio)}–${hh(p.janela_barata.fim)}.</small>`
+        : `${N(p.custo_carbono_por_preco)} <span style="font-size:.42em;font-weight:600">kg CO₂eq/MWh</span>
+           <small>é o que custa, em carbono, decidir o deslocamento só pelo preço —
+             a janela mais barata (${hh(p.janela_barata.inicio)}–${hh(p.janela_barata.fim)}) não é
+             a mais limpa (${hh(b.melhor_janela.inicio)}–${hh(b.melhor_janela.fim)}).</small>`}
+    </div>
+    <div class="stats">
+      <div><span class="rot">Janela mais barata</span>
+        <b class="tnum">${hh(p.janela_barata.inicio)}–${hh(p.janela_barata.fim)}</b>
+        <span class="det tnum">R$ ${N(p.janela_barata.cmo, 2)}/MWh · ${N(p.janela_barata.intensidade, 0)} kg CO₂eq/MWh</span></div>
+      <div><span class="rot">Janela mais cara</span>
+        <b class="tnum">${hh(p.janela_cara.inicio)}–${hh(p.janela_cara.fim)}</b>
+        <span class="det tnum">R$ ${N(p.janela_cara.cmo, 2)}/MWh</span></div>
+      <div><span class="rot">Preço na janela mais limpa</span>
+        <b class="tnum">R$ ${N(p.cmo_na_janela_limpa, 2)}</b>
+        <span class="det">por MWh</span></div>
+    </div>
+    <p class="nota">Nos últimos 30 dias, preço e carbono ${textoCorrelacao(p.correlacao_postos_30d)}
+      (correlação de postos ${p.correlacao_postos_30d === null ? "—" : N(p.correlacao_postos_30d, 2)},
+      sobre ${n} horas).${pctZero !== null ? `
+      Em <b>${zero} dessas horas (${pctZero}%)</b> o custo marginal foi zero: havia mais energia
+      disponível do que carga para consumi-la.` : ""}</p>`;
+}
+
+function desenharPrecoCarbono(b) {
+  const p = b.preco;
+  const W = 1060, ML = 66, MR = 18, MT = 22, GAP = 44, PH = 150, MB = 34;
+  const H = MT + PH + GAP + PH + MB;
+  const int24 = Array.from({length: 24}, (_, h) => {
+    const r = b.horas.find(x => x.h === h); return r ? r.intensidade : null;
+  });
+  const cmo24 = p.horas_cmo;
+  const x = h => ML + (h / 23) * (W - ML - MR);
+
+  const painel = (vals, topo, cor, titulo, unidade, incluirZero) => {
+    const ok = vals.filter(v => v !== null);
+    let lo = Math.min(...ok), hi = Math.max(...ok);
+    const pad = (hi - lo) * .12 || 1;
+    hi += pad;
+    // O CMO tem piso em zero: folga abaixo disso inventaria custo negativo no eixo.
+    lo = incluirZero ? Math.min(0, lo) : lo - pad;
+    const y = v => topo + PH - ((v - lo) / (hi - lo)) * PH;
+    let s = `<text x="${ML}" y="${topo - 7}" fill="var(--ink-2)" font-size="14" font-weight="600">${titulo}</text>`;
+    for (let g = 0; g <= 2; g++) {
+      const v = lo + (hi - lo) * g / 2;
+      s += `<line x1="${ML}" x2="${W - MR}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/>
+        <text x="${ML - 9}" y="${y(v) + 4}" text-anchor="end" fill="var(--ink-muted)" font-size="13"
+          style="font-variant-numeric:tabular-nums">${N(v, 0)}</text>`;
+    }
+    // faixas das duas janelas, desenhadas atras da linha
+    const faixa = (ini, cor2, rot) => {
+      const x1 = x(ini), x2 = x(Math.min(ini + 3, 23));
+      return `<rect x="${x1}" y="${topo}" width="${Math.max(2, x2 - x1)}" height="${PH}"
+        fill="${cor2}" opacity=".13"/>` + (rot
+        ? `<text x="${(x1 + x2) / 2}" y="${topo + 14}" text-anchor="middle" fill="${cor2}"
+             font-size="13" font-weight="650">${rot}</text>` : "");
+    };
+    s = faixa(b.melhor_janela.inicio, "var(--good)", titulo.startsWith("Intensidade") ? "mais limpa" : "")
+      + faixa(p.janela_barata.inicio, "var(--cat-preco)", titulo.startsWith("Intensidade") ? "mais barata" : "")
+      + s;
+    let d = "", primeiro = true;
+    vals.forEach((v, h) => {
+      if (v === null) { primeiro = true; return; }
+      d += (primeiro ? "M" : "L") + x(h) + " " + y(v); primeiro = false;
+    });
+    s += `<path d="${d}" fill="none" stroke="${cor}" stroke-width="2.5" stroke-linejoin="round"/>
+      <text x="${W - MR}" y="${topo + 14}" text-anchor="end" fill="var(--ink-muted)" font-size="13">${unidade}</text>`;
+    return s;
+  };
+
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Intensidade de carbono e custo marginal de operação, hora a hora">`;
+  s += painel(int24, MT, "var(--s450)", "Intensidade de carbono", "kg CO₂eq/MWh", false);
+  s += painel(cmo24, MT + PH + GAP, "var(--cat-preco)", "Custo marginal de operação", "R$/MWh", true);
+  for (let h = 0; h < 24; h += 3) {
+    s += `<text x="${x(h)}" y="${H - 10}" text-anchor="middle" fill="var(--ink-muted)" font-size="13"
+      style="font-variant-numeric:tabular-nums">${hh(h)}</text>`;
+  }
+  for (let h = 0; h < 24; h++) {
+    s += `<rect x="${x(h) - (W - ML - MR) / 46}" y="${MT}" width="${(W - ML - MR) / 23}"
+      height="${H - MT - MB}" fill="transparent" data-h="${h}" style="cursor:crosshair"/>`;
+  }
+  s += `</svg>`;
+
+  const fig = document.getElementById("fig-preco");
+  fig.innerHTML = `<div class="chart-scroll">${s}</div>` + `<figcaption>Subsistema ${b.nome}, dia ${dataBR(b.dia_referencia)}.
+    Dois painéis, uma escala cada: escalas diferentes num eixo só distorceriam a comparação.
+    O CMO é <b>estimado</b> pelo modelo DESSEM do ONS — é o custo marginal da operação, base do PLD,
+    e não a tarifa que a sua unidade paga.</figcaption>`;
+  fig.querySelectorAll("rect[data-h]").forEach(r => {
+    r.addEventListener("mousemove", e => {
+      const h = +r.dataset.h;
+      mostrarTip(e, `<b>${hh(h)}</b><br>
+        ${int24[h] === null ? "sem dado" : N(int24[h]) + " kg CO₂eq/MWh"}<br>
+        ${cmo24[h] === null ? "sem preço" : "R$ " + N(cmo24[h], 2) + "/MWh"}`);
+    });
+    r.addEventListener("mouseleave", esconderTip);
+  });
+}
+
 function render() {
   const b = DADOS.subsistemas[ATUAL];
   document.getElementById("aviso").innerHTML =
@@ -514,6 +652,9 @@ function render() {
   preencherDecisao(b);
   desenharMix(b);
   desenharComparacao(b);
+  const secP = document.getElementById("sec-preco");
+  secP.hidden = !b.preco;
+  if (b.preco) { preencherVeredito(b); desenharPrecoCarbono(b); }
   preencherMetodologia();
   document.getElementById("rodape-gerado").textContent =
     "Página gerada automaticamente em " + new Date(DADOS.gerado_em).toLocaleString("pt-BR") +
