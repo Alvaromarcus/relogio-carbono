@@ -1,0 +1,37 @@
+{
+  "unidade": "kg CO2eq/MWh",
+  "escopo": "ciclo de vida (construcao, operacao, combustivel, descomissionamento)",
+  "fatores": {
+    "hidraulica": {
+      "valor": 24,
+      "fonte": "IPCC AR5, WG3, Annex III, Table A.III.2 - mediana de ciclo de vida para hidreletrica",
+      "url": "https://www.ipcc.ch/site/assets/uploads/2018/02/ipcc_wg3_ar5_annex-iii.pdf"
+    },
+    "eolica": {
+      "valor": 11,
+      "fonte": "IPCC AR5, WG3, Annex III, Table A.III.2 - mediana de ciclo de vida para eolica onshore",
+      "url": "https://www.ipcc.ch/site/assets/uploads/2018/02/ipcc_wg3_ar5_annex-iii.pdf"
+    },
+    "solar": {
+      "valor": 48,
+      "fonte": "IPCC AR5, WG3, Annex III, Table A.III.2 - mediana de ciclo de vida para solar fotovoltaica de grande porte",
+      "url": "https://www.ipcc.ch/site/assets/uploads/2018/02/ipcc_wg3_ar5_annex-iii.pdf"
+    },
+    "nuclear": {
+      "valor": 12,
+      "fonte": "IPCC AR5, WG3, Annex III, Table A.III.2 - mediana de ciclo de vida para nuclear",
+      "url": "https://www.ipcc.ch/site/assets/uploads/2018/02/ipcc_wg3_ar5_annex-iii.pdf"
+    },
+    "termica": {
+      "valor": 490,
+      "fonte": "PROVISORIO - a ser substituido por media ponderada do parque termico do SIN (BEN/EPE) com fatores IPCC AR5 por combustivel",
+      "url": "https://www.ipcc.ch/site/assets/uploads/2018/02/ipcc_wg3_ar5_annex-iii.pdf",
+      "pendente": true
+    }
+  },
+  "validacao": {
+    "descricao": "A media mensal calculada deve ficar na mesma ordem de grandeza do fator medio do SIN publicado pelo MCTI.",
+    "fonte": "MCTI/SIRENE - Fatores de Emissao de CO2 (fator medio para inventarios corporativos)",
+    "url": "https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/cgcl/paginas/fator-medio-inventarios-corporativos"
+  }
+}
