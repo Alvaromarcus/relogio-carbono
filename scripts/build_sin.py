@@ -228,7 +228,13 @@ def bloco_preco(dia_por_hora: pd.DataFrame, df30: pd.DataFrame, melhor: dict) ->
     custo_carbono = round(barata["intensidade"] - melhor["intensidade"], 1)
 
     par = df30[["intensidade", "val_cmo"]].dropna() if "val_cmo" in df30 else pd.DataFrame()
-    correl = round(float(par["intensidade"].corr(par["val_cmo"])), 3) if len(par) >= 48 else None
+    correl = spearman = horas_zero = None
+    if len(par) >= 48:
+        correl = round(float(par["intensidade"].corr(par["val_cmo"])), 3)
+        # O CMO satura em zero quando ha excedente, o que distorce Pearson.
+        # A correlacao de postos e mais honesta com essa massa de pontos no piso.
+        spearman = round(float(par["intensidade"].corr(par["val_cmo"], method="spearman")), 3)
+        horas_zero = int((par["val_cmo"] <= 0.01).sum())
 
     return {
         "janela_barata": barata,
@@ -237,6 +243,8 @@ def bloco_preco(dia_por_hora: pd.DataFrame, df30: pd.DataFrame, melhor: dict) ->
         "custo_carbono_por_preco": custo_carbono,
         "coincidem": barata["inicio"] == melhor["inicio"],
         "correlacao_30d": correl,
+        "correlacao_postos_30d": spearman,
+        "horas_cmo_zero_30d": horas_zero,
         "n_horas_correlacao": int(len(par)),
         "horas_cmo": [
             None if pd.isna(s_cmo.get(h, float("nan"))) else round(float(s_cmo.get(h)), 2)
@@ -339,7 +347,8 @@ def main() -> int:
                 f"(R$ {p['janela_barata']['cmo']}/MWh, {p['janela_barata']['intensidade']} kg) | "
                 f"coincide com a limpa: {p['coincidem']} | "
                 f"custo em carbono de decidir pelo preco: {p['custo_carbono_por_preco']} kg/MWh | "
-                f"correlacao 30d: {p['correlacao_30d']} (n={p['n_horas_correlacao']})"
+                f"correl 30d pearson={p['correlacao_30d']} spearman={p['correlacao_postos_30d']} "
+                f"(n={p['n_horas_correlacao']}, horas a custo zero={p['horas_cmo_zero_30d']})"
             )
 
     saida = {
