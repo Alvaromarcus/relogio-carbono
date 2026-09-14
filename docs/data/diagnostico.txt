@@ -1,0 +1,21 @@
+[relogio] baixando https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/balanco_energia_subsistema_ho/BALANCO_ENERGIA_SUBSISTEMA_2026.parquet
+[relogio]   ok — 1.5 MB
+[relogio] shape=(30480, 9)
+[relogio] colunas reais: id_subsistema, nom_subsistema, din_instante, val_gerhidraulica, val_gertermica, val_gereolica, val_gersolar, val_carga, val_intercambio
+[relogio] dtypes: id_subsistema=string, nom_subsistema=string, din_instante=datetime64[ns], val_gerhidraulica=float64, val_gertermica=float64, val_gereolica=float64, val_gersolar=float64, val_carga=float64, val_intercambio=float64
+[relogio] mapeamento: {"instante": "din_instante", "subsistema": "id_subsistema", "hidraulica": "val_gerhidraulica", "termica": "val_gertermica", "eolica": "val_gereolica", "solar": "val_gersolar", "nuclear": null, "carga": "val_carga", "intercambio": "val_intercambio"}
+[relogio] AVISO — sem coluna correspondente para: ['nuclear']
+[relogio] amostra:
+  id_subsistema nom_subsistema din_instante  val_gerhidraulica  val_gertermica  val_gereolica  val_gersolar  val_carga  val_intercambio
+0           N            NORTE   2026-01-01          11587.046        1864.907        263.019           0.0   7622.606         6094.172
+1           NE        NORDESTE   2026-01-01           2958.865         577.183      10067.167           0.0  12887.229          714.680
+2           S              SUL   2026-01-01          11963.604         145.406        419.888           1.0  11137.516         1435.692
+/home/runner/work/relogio-carbono/relogio-carbono/scripts/build_sin.py:123: DeprecationWarning: The 'generic' unit for NumPy timedelta is deprecated, and will raise an error in the future. This includes implicit conversion of bare integers (e.g. `+ 1`). Please use a specific unit instead.
+  corte = df[col_inst].max() - pd.Timedelta(days=DIAS_JANELA)
+[relogio] apos filtro: 1081 linhas, de 2026-07-28 23:00:00 a 2026-09-11 23:00:00
+/home/runner/work/relogio-carbono/relogio-carbono/scripts/build_sin.py:188: DeprecationWarning: The 'generic' unit for NumPy timedelta is deprecated, and will raise an error in the future. This includes implicit conversion of bare integers (e.g. `+ 1`). Please use a specific unit instead.
+  corte30 = ultimo - pd.Timedelta(days=DIAS_PERFIL_MEDIO)
+[relogio] VALIDACAO — intensidade media do periodo: 107.6 kg CO2eq/MWh
+[relogio] melhor janela: {'inicio': 11, 'fim': 14, 'intensidade': 90.2} | pior: {'inicio': 2, 'fim': 5, 'intensidade': 117.7}
+[relogio] delta: 27.5 kg CO2eq por MWh deslocado
+[relogio] gravado /home/runner/work/relogio-carbono/relogio-carbono/docs/data/sin.json (6.5 kB)
