@@ -31,7 +31,10 @@ jobs:
       - name: Gerar sin.json
         env:
           SUBSISTEMA: SE
-        run: python scripts/build_sin.py
+        run: |
+          mkdir -p docs/data
+          set -o pipefail
+          python scripts/build_sin.py 2>&1 | tee docs/data/diagnostico.txt
 
       - name: Guardar sin.json como artefato
         uses: actions/upload-artifact@v4
@@ -41,14 +44,13 @@ jobs:
           if-no-files-found: error
 
       - name: Commitar se houve mudanca
-        if: github.ref == 'refs/heads/main'
         run: |
           git config user.name  'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-          git add docs/data/sin.json
+          git add docs/data/sin.json docs/data/diagnostico.txt
           if git diff --staged --quiet; then
             echo "sem mudanca nos dados"
           else
             git commit -m "dados: atualiza sin.json ($(date -u +%FT%TZ))"
-            git push
+            git push origin HEAD:${GITHUB_REF_NAME}
           fi
