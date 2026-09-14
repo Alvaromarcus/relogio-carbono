@@ -55,6 +55,11 @@ PISTAS = {
 
 FONTES = ["hidraulica", "termica", "eolica", "solar", "nuclear"]
 
+# CMO semi-horario, estimado pelo modelo DESSEM. Base de 30 min, agregada para hora.
+BASE_CMO = (
+    "https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/cmo_tm/CMO_SEMIHORARIO_{ano}.parquet"
+)
+
 
 def log(msg: str) -> None:
     print(f"[relogio] {msg}", flush=True)
@@ -77,6 +82,34 @@ def baixar(ano: int) -> pd.DataFrame:
             erros.append(f"{ext}: {exc}")
             log(f"  falhou ({exc})")
     raise RuntimeError("nao foi possivel baixar os dados do ONS: " + " | ".join(erros))
+
+
+def baixar_cmo(ano: int) -> pd.DataFrame | None:
+    """CMO semi-horario por subsistema, agregado para base horaria.
+
+    Falha aqui nao derruba o build: a pagina trata a ausencia de preco.
+    """
+    url = BASE_CMO.format(ano=ano)
+    try:
+        log(f"baixando CMO {url}")
+        r = requests.get(url, timeout=180)
+        r.raise_for_status()
+        df = pd.read_parquet(io.BytesIO(r.content))
+        log(f"  ok — {len(r.content)/1e6:.2f} MB, colunas: {list(df.columns)}")
+    except Exception as exc:  # noqa: BLE001
+        log(f"  AVISO — CMO indisponivel ({exc}); a pagina sai sem a aba de preco")
+        return None
+
+    df = df.rename(columns={c: c.lower() for c in df.columns})
+    df["din_instante"] = pd.to_datetime(df["din_instante"], errors="coerce")
+    # val_cmo vem como texto no parquet do ONS — converter explicitamente.
+    df["val_cmo"] = pd.to_numeric(df["val_cmo"], errors="coerce")
+    df = df.dropna(subset=["din_instante", "val_cmo"])
+    df["sigla"] = df["id_subsistema"].astype(str).str.upper().str.strip()
+    df["hora_cheia"] = df["din_instante"].dt.floor("h")
+    horario = df.groupby(["sigla", "hora_cheia"], as_index=False)["val_cmo"].mean()
+    log(f"  CMO horario: {len(horario)} linhas, ate {horario['hora_cheia'].max()}")
+    return horario
 
 
 def resolver_colunas(df: pd.DataFrame) -> dict[str, str | None]:
@@ -180,7 +213,44 @@ def media_janela(serie: pd.Series, inicio: int) -> float:
     return sum(float(serie.get((inicio + k) % 24, float("nan"))) for k in range(3)) / 3
 
 
-def bloco_subsistema(df: pd.DataFrame, sigla: str, fatores: dict) -> dict:
+def bloco_preco(dia_por_hora: pd.DataFrame, df30: pd.DataFrame, melhor: dict) -> dict | None:
+    """Cruza o CMO com a intensidade: a hora mais barata e tambem a mais limpa?"""
+    if "val_cmo" not in dia_por_hora or dia_por_hora["val_cmo"].notna().sum() < 24:
+        return None
+
+    s_cmo, s_int = dia_por_hora["val_cmo"], dia_por_hora["intensidade"]
+    barata, cara = janelas_3h(s_cmo)
+    barata = {"inicio": barata["inicio"], "fim": barata["fim"], "cmo": round(barata["intensidade"], 2)}
+    cara = {"inicio": cara["inicio"], "fim": cara["fim"], "cmo": round(cara["intensidade"], 2)}
+
+    # O que acontece com o carbono quando a decisao e tomada so pelo preco.
+    barata["intensidade"] = round(media_janela(s_int, barata["inicio"]), 1)
+    custo_carbono = round(barata["intensidade"] - melhor["intensidade"], 1)
+
+    par = df30[["intensidade", "val_cmo"]].dropna() if "val_cmo" in df30 else pd.DataFrame()
+    correl = round(float(par["intensidade"].corr(par["val_cmo"])), 3) if len(par) >= 48 else None
+
+    return {
+        "janela_barata": barata,
+        "janela_cara": cara,
+        "cmo_na_janela_limpa": round(media_janela(s_cmo, melhor["inicio"]), 2),
+        "custo_carbono_por_preco": custo_carbono,
+        "coincidem": barata["inicio"] == melhor["inicio"],
+        "correlacao_30d": correl,
+        "n_horas_correlacao": int(len(par)),
+        "horas_cmo": [
+            None if pd.isna(s_cmo.get(h, float("nan"))) else round(float(s_cmo.get(h)), 2)
+            for h in range(24)
+        ],
+    }
+
+
+def bloco_subsistema(df: pd.DataFrame, sigla: str, fatores: dict, cmo: pd.DataFrame | None) -> dict:
+    if cmo is not None:
+        c = cmo[cmo["sigla"] == sigla][["hora_cheia", "val_cmo"]]
+        df = df.merge(c, left_on="instante", right_on="hora_cheia", how="left").drop(
+            columns=["hora_cheia"], errors="ignore"
+        )
     ultimo = df["instante"].max()
     dia_alvo = ultimo.normalize()
     dia = df[df["instante"].dt.normalize() == dia_alvo]
@@ -198,11 +268,9 @@ def bloco_subsistema(df: pd.DataFrame, sigla: str, fatores: dict) -> dict:
         sens[rotulo] = round(media_janela(s, pior["inicio"]) - media_janela(s, melhor["inicio"]), 1)
 
     corte30 = ultimo - pd.Timedelta(value=DIAS_PERFIL_MEDIO, unit="D")
-    perfil = (
-        df[df["instante"] >= corte30]
-        .groupby(df["instante"].dt.hour)[["pct_renov", "intensidade"]]
-        .mean()
-    )
+    df30 = df[df["instante"] >= corte30]
+    perfil = df30.groupby(df30["instante"].dt.hour)[["pct_renov", "intensidade"]].mean()
+    preco = bloco_preco(por_hora, df30, melhor)
 
     def iso(ts: pd.Timestamp) -> str:
         return ts.to_pydatetime().replace(tzinfo=FUSO_BR).isoformat()
@@ -239,6 +307,7 @@ def bloco_subsistema(df: pd.DataFrame, sigla: str, fatores: dict) -> dict:
         "delta_sensibilidade": sens,
         "media_periodo": round(float(df["intensidade"].mean()), 1),
         "media_periodo_termica": round(float(df["intensidade_termica"].mean()), 1),
+        "preco": preco,
     }
 
 
@@ -249,11 +318,12 @@ def main() -> int:
     bruto = baixar(ano)
     mapa = resolver_colunas(bruto)
     diagnostico(bruto, mapa)
+    cmo = baixar_cmo(ano)
 
     blocos = {}
     for sigla in SUBSISTEMAS:
         df = calcular(preparar(bruto, mapa, sigla), fatores)
-        blocos[sigla] = bloco_subsistema(df, sigla, fatores)
+        blocos[sigla] = bloco_subsistema(df, sigla, fatores, cmo)
         b = blocos[sigla]
         log(
             f"{sigla}: dia {b['dia_referencia']} | melhor {b['melhor_janela']['inicio']}h "
@@ -262,6 +332,15 @@ def main() -> int:
             f"(faixa {b['delta_sensibilidade']['min']}–{b['delta_sensibilidade']['max']}) | "
             f"media 45d {b['media_periodo']} (so termica {b['media_periodo_termica']})"
         )
+        p = b.get("preco")
+        if p:
+            log(
+                f"   preco: barata {p['janela_barata']['inicio']}h "
+                f"(R$ {p['janela_barata']['cmo']}/MWh, {p['janela_barata']['intensidade']} kg) | "
+                f"coincide com a limpa: {p['coincidem']} | "
+                f"custo em carbono de decidir pelo preco: {p['custo_carbono_por_preco']} kg/MWh | "
+                f"correlacao 30d: {p['correlacao_30d']} (n={p['n_horas_correlacao']})"
+            )
 
     saida = {
         "gerado_em": datetime.now(FUSO_BR).isoformat(timespec="seconds"),
@@ -272,6 +351,12 @@ def main() -> int:
             "nome": "ONS — Balanco de Energia nos Subsistemas (base horaria)",
             "url": "https://dados.ons.org.br/dataset/balanco-energia-subsistema",
             "licenca": "Creative Commons Attribution",
+        },
+        "fonte_preco": {
+            "nome": "ONS — CMO Semi-Horario (modelo DESSEM), agregado para base horaria",
+            "url": "https://dados.ons.org.br/dataset/cmo-semi-horario",
+            "licenca": "Creative Commons Attribution",
+            "natureza": "estimado",
         },
     }
 
