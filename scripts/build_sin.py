@@ -233,7 +233,9 @@ def bloco_preco(dia_por_hora: pd.DataFrame, df30: pd.DataFrame, melhor: dict) ->
         correl = round(float(par["intensidade"].corr(par["val_cmo"])), 3)
         # O CMO satura em zero quando ha excedente, o que distorce Pearson.
         # A correlacao de postos e mais honesta com essa massa de pontos no piso.
-        spearman = round(float(par["intensidade"].corr(par["val_cmo"], method="spearman")), 3)
+        # Calculada como Pearson dos ranks: pandas exigiria SciPy para method="spearman",
+        # e SciPy nao esta no runner.
+        spearman = round(float(par["intensidade"].rank().corr(par["val_cmo"].rank())), 3)
         horas_zero = int((par["val_cmo"] <= 0.01).sum())
 
     return {
@@ -278,7 +280,12 @@ def bloco_subsistema(df: pd.DataFrame, sigla: str, fatores: dict, cmo: pd.DataFr
     corte30 = ultimo - pd.Timedelta(value=DIAS_PERFIL_MEDIO, unit="D")
     df30 = df[df["instante"] >= corte30]
     perfil = df30.groupby(df30["instante"].dt.hour)[["pct_renov", "intensidade"]].mean()
-    preco = bloco_preco(por_hora, df30, melhor)
+    try:
+        preco = bloco_preco(por_hora, df30, melhor)
+    except Exception as exc:  # noqa: BLE001
+        # A aba de preco e opcional: nunca deve derrubar a geracao do relogio.
+        log(f"AVISO — bloco de preco falhou ({type(exc).__name__}: {exc})")
+        preco = None
 
     def iso(ts: pd.Timestamp) -> str:
         return ts.to_pydatetime().replace(tzinfo=FUSO_BR).isoformat()
