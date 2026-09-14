@@ -46,6 +46,24 @@ Variáveis opcionais: `ANO` (padrão: ano corrente).
 - **Fatores de emissão:** [IPCC AR5, WG3, Annex III, Table A.III.2](https://www.ipcc.ch/site/assets/uploads/2018/02/ipcc_wg3_ar5_annex-iii.pdf)
 - **Validação:** [MCTI/SIRENE — fator médio do SIN](https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/cgcl/paginas/fator-medio-inventarios-corporativos)
 
+## Licença
+
+| O que | Licença |
+|---|---|
+| Código (`scripts/`, workflow, JS da página) | [MIT](LICENSE) |
+| Conteúdo — textos, gráficos e o `sin.json` derivado | [CC BY 4.0](LICENSE-CONTENT.md) |
+
+Uso livre, inclusive comercial, com crédito. Como o dado de origem do ONS é CC-BY, quem
+reutilizar o `sin.json` credita o ONS **e** este projeto — as atribuições são cumulativas.
+
+## Como citar
+
+> Relógio de Carbono do SIN, de Álvaro Severo Marcus (CC BY 4.0) —
+> https://github.com/Alvaromarcus/relogio-carbono
+
+O arquivo [`CITATION.cff`](CITATION.cff) habilita o botão "Cite this repository" na página
+do GitHub, com saída em BibTeX e APA.
+
 ## Limitações
 
 A página não faz previsão de intensidade para as próximas horas — mostra apenas o que já foi medido. O balanço do ONS sai com alguns dias de defasagem; a página anuncia o dia de referência com destaque.

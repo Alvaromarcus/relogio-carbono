@@ -1,0 +1,37 @@
+cff-version: 1.2.0
+message: "Se você usar este projeto ou os dados derivados dele, por favor cite conforme abaixo."
+title: "Relógio de Carbono do SIN"
+abstract: >-
+  Página que calcula o percentual renovável e a intensidade de carbono hora a hora
+  nos subsistemas do Sistema Interligado Nacional brasileiro, a partir do Balanço de
+  Energia nos Subsistemas do ONS, e identifica a melhor e a pior janela de três horas
+  para deslocamento de carga flexível.
+type: software
+authors:
+  - family-names: "Marcus"
+    given-names: "Álvaro Severo"
+    affiliation: "CREA/ES"
+    website: "http://lattes.cnpq.br/5097752245983839"
+repository-code: "https://github.com/Alvaromarcus/relogio-carbono"
+url: "https://alvaromarcus.github.io/relogio-carbono/"
+license: MIT
+year: 2026
+keywords:
+  - eficiência energética
+  - intensidade de carbono
+  - deslocamento de carga
+  - Sistema Interligado Nacional
+  - dados abertos
+references:
+  - type: data
+    title: "Balanço de Energia nos Subsistemas"
+    authors:
+      - name: "ONS — Operador Nacional do Sistema Elétrico"
+    url: "https://dados.ons.org.br/dataset/balanco-energia-subsistema"
+    license: CC-BY-4.0
+  - type: report
+    title: "Climate Change 2014: Mitigation of Climate Change. Annex III: Technology-specific Cost and Performance Parameters"
+    authors:
+      - name: "IPCC"
+    year: 2014
+    url: "https://www.ipcc.ch/site/assets/uploads/2018/02/ipcc_wg3_ar5_annex-iii.pdf"
