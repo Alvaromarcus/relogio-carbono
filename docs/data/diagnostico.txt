@@ -8,4 +8,4 @@
 [relogio] S: dia 2026-09-11 | melhor 20h (63.9) | pior 8h (79.5) | delta 15.6 (faixa 9.4–23.5) | media 45d 63.1 (so termica 39.2)
 [relogio] NE: dia 2026-09-11 | melhor 1h (20.7) | pior 11h (39.5) | delta 18.8 (faixa 19.1–18.3) | media 45d 29.2 (so termica 8.7)
 [relogio] N: dia 2026-09-11 | melhor 10h (178.9) | pior 22h (284.1) | delta 105.2 (faixa 40.9–187.0) | media 45d 196.8 (so termica 179.0)
-[relogio] gravado /home/runner/work/relogio-carbono/relogio-carbono/docs/data/sin.json (18.9 kB)
+[relogio] gravado /home/runner/work/relogio-carbono/relogio-carbono/docs/data/sin.json (19.0 kB)
