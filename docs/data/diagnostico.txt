@@ -9,10 +9,10 @@
 [relogio]   CMO horario: 24384 linhas, ate 2026-09-16 23:00:00
 [relogio] SE: dia 2026-09-14 | melhor 18h (90.0) | pior 2h (124.0) | delta 34.0 (faixa 15.0–58.0) | media 45d 106.9 (so termica 83.0)
 [relogio]    preco: barata 7h (R$ 0.0/MWh, 100.4 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 10.4 kg/MWh | correl 30d pearson=0.062 spearman=0.114 (n=673, horas a custo zero=183)
-[relogio] S: dia 2026-09-14 | melhor 18h (64.5) | pior 2h (90.5) | delta 26.0 (faixa 11.3–44.5) | media 45d 63.5 (so termica 39.5)
-[relogio]    preco: barata 1h (R$ 0.0/MWh, 88.2 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 23.7 kg/MWh | correl 30d pearson=-0.172 spearman=-0.568 (n=673, horas a custo zero=179)
+[relogio] S: dia 2026-09-14 | melhor 18h (64.5) | pior 2h (90.4) | delta 25.9 (faixa 11.3–44.4) | media 45d 63.5 (so termica 39.5)
+[relogio]    preco: barata 1h (R$ 0.0/MWh, 88.1 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 23.6 kg/MWh | correl 30d pearson=-0.172 spearman=-0.568 (n=673, horas a custo zero=179)
 [relogio] NE: dia 2026-09-14 | melhor 2h (20.8) | pior 11h (42.2) | delta 21.4 (faixa 21.3–21.6) | media 45d 29.3 (so termica 8.8)
-[relogio]    preco: barata 7h (R$ 0.0/MWh, 34.9 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 14.1 kg/MWh | correl 30d pearson=-0.183 spearman=-0.563 (n=673, horas a custo zero=190)
+[relogio]    preco: barata 7h (R$ 0.0/MWh, 34.9 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 14.1 kg/MWh | correl 30d pearson=-0.183 spearman=-0.562 (n=673, horas a custo zero=190)
 [relogio] N: dia 2026-09-14 | melhor 10h (199.4) | pior 2h (299.0) | delta 99.6 (faixa 38.8–176.8) | media 45d 202.0 (so termica 184.4)
 [relogio]    preco: barata 10h (R$ 13.1/MWh, 199.4 kg) | coincide com a limpa: True | custo em carbono de decidir pelo preco: 0.0 kg/MWh | correl 30d pearson=-0.044 spearman=0.279 (n=673, horas a custo zero=27)
 [relogio] gravado /home/runner/work/relogio-carbono/relogio-carbono/docs/data/sin.json (21.0 kB)
