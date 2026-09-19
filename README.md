@@ -80,4 +80,4 @@ A página não faz previsão de intensidade para as próximas horas — mostra a
 
 ---
 
-Álvaro Severo Marcus · [CREA/ES](https://www.linkedin.com/in/alvaromarcus/)
+Álvaro Severo Marcus · [Linkedin](https://www.linkedin.com/in/alvaromarcus/)
