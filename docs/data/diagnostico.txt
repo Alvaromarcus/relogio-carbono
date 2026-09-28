@@ -5,8 +5,8 @@
 [relogio] mapeamento: {"instante": "din_instante", "subsistema": "id_subsistema", "hidraulica": "val_gerhidraulica", "termica": "val_gertermica", "eolica": "val_gereolica", "solar": "val_gersolar", "nuclear": null, "carga": "val_carga", "intercambio": "val_intercambio"}
 [relogio] AVISO — sem coluna correspondente para: ['nuclear']
 [relogio] baixando CMO https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/cmo_tm/CMO_SEMIHORARIO_2026.parquet
-[relogio]   ok — 0.33 MB, colunas: ['id_subsistema', 'nom_subsistema', 'din_instante', 'val_cmo']
-[relogio]   CMO horario: 25440 linhas, ate 2026-09-27 23:00:00
+[relogio]   ok — 0.34 MB, colunas: ['id_subsistema', 'nom_subsistema', 'din_instante', 'val_cmo']
+[relogio]   CMO horario: 25536 linhas, ate 2026-09-28 23:00:00
 [relogio] SE: dia 2026-09-25 | melhor 19h (86.0) | pior 2h (106.9) | delta 20.9 (faixa 9.2–35.7) | media 45d 103.7 (so termica 79.7)
 [relogio]    preco: barata 8h (R$ 0.0/MWh, 93.5 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 7.5 kg/MWh | correl 30d pearson=0.073 spearman=0.071 (n=673, horas a custo zero=250)
 [relogio] S: dia 2026-09-25 | melhor 21h (43.7) | pior 8h (54.4) | delta 10.7 (faixa 9.3–12.4) | media 45d 63.3 (so termica 39.2)
