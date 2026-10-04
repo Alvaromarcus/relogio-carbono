@@ -6,7 +6,7 @@
 [relogio] AVISO — sem coluna correspondente para: ['nuclear']
 [relogio] baixando CMO https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/cmo_tm/CMO_SEMIHORARIO_2026.parquet
 [relogio]   ok — 0.34 MB, colunas: ['id_subsistema', 'nom_subsistema', 'din_instante', 'val_cmo']
-[relogio]   CMO horario: 26016 linhas, ate 2026-10-03 23:00:00
+[relogio]   CMO horario: 26112 linhas, ate 2026-10-04 23:00:00
 [relogio] SE: dia 2026-10-01 | melhor 14h (81.3) | pior 2h (98.2) | delta 16.9 (faixa 3.9–33.5) | media 45d 102.0 (so termica 77.8)
 [relogio]    preco: barata 9h (R$ 0.0/MWh, 84.5 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 3.2 kg/MWh | correl 30d pearson=-0.001 spearman=0.015 (n=673, horas a custo zero=267)
 [relogio] S: dia 2026-10-01 | melhor 22h (58.1) | pior 10h (70.4) | delta 12.3 (faixa 9.3–16.2) | media 45d 62.9 (so termica 38.6)
