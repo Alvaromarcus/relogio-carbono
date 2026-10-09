@@ -1,18 +1,18 @@
 [relogio] baixando https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/balanco_energia_subsistema_ho/BALANCO_ENERGIA_SUBSISTEMA_2026.parquet
 [relogio]   ok — 1.6 MB
-[relogio] shape=(33480, 9)
+[relogio] shape=(33600, 9)
 [relogio] colunas reais: id_subsistema, nom_subsistema, din_instante, val_gerhidraulica, val_gertermica, val_gereolica, val_gersolar, val_carga, val_intercambio
 [relogio] mapeamento: {"instante": "din_instante", "subsistema": "id_subsistema", "hidraulica": "val_gerhidraulica", "termica": "val_gertermica", "eolica": "val_gereolica", "solar": "val_gersolar", "nuclear": null, "carga": "val_carga", "intercambio": "val_intercambio"}
 [relogio] AVISO — sem coluna correspondente para: ['nuclear']
 [relogio] baixando CMO https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/cmo_tm/CMO_SEMIHORARIO_2026.parquet
 [relogio]   ok — 0.35 MB, colunas: ['id_subsistema', 'nom_subsistema', 'din_instante', 'val_cmo']
-[relogio]   CMO horario: 26592 linhas, ate 2026-10-08 23:00:00
-[relogio] SE: dia 2026-10-06 | melhor 17h (76.8) | pior 3h (97.0) | delta 20.2 (faixa 8.7–34.8) | media 45d 100.3 (so termica 76.1)
-[relogio]    preco: barata 7h (R$ 0.0/MWh, 86.9 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 10.1 kg/MWh | correl 30d pearson=0.007 spearman=0.009 (n=721, horas a custo zero=292)
-[relogio] S: dia 2026-10-06 | melhor 20h (53.4) | pior 2h (72.0) | delta 18.6 (faixa 8.0–32.0) | media 45d 62.4 (so termica 38.1)
-[relogio]    preco: barata 7h (R$ 0.0/MWh, 70.2 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 16.8 kg/MWh | correl 30d pearson=-0.211 spearman=-0.412 (n=721, horas a custo zero=300)
-[relogio] NE: dia 2026-10-06 | melhor 1h (21.9) | pior 11h (42.7) | delta 20.8 (faixa 20.9–20.6) | media 45d 30.5 (so termica 9.8)
-[relogio]    preco: barata 7h (R$ 0.0/MWh, 34.9 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 13.0 kg/MWh | correl 30d pearson=-0.372 spearman=-0.561 (n=721, horas a custo zero=295)
-[relogio] N: dia 2026-10-06 | melhor 18h (169.3) | pior 3h (271.8) | delta 102.5 (faixa 45.1–175.3) | media 45d 212.3 (so termica 195.1)
-[relogio]    preco: barata 8h (R$ 14.7/MWh, 191.0 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 21.7 kg/MWh | correl 30d pearson=0.118 spearman=0.3 (n=721, horas a custo zero=19)
+[relogio]   CMO horario: 26688 linhas, ate 2026-10-09 23:00:00
+[relogio] SE: dia 2026-10-07 | melhor 11h (87.1) | pior 2h (105.9) | delta 18.8 (faixa 1.8–40.4) | media 45d 99.9 (so termica 75.7)
+[relogio]    preco: barata 8h (R$ 0.0/MWh, 90.4 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 3.3 kg/MWh | correl 30d pearson=-0.013 spearman=-0.011 (n=721, horas a custo zero=291)
+[relogio] S: dia 2026-10-07 | melhor 21h (53.7) | pior 3h (72.9) | delta 19.2 (faixa 8.6–32.7) | media 45d 62.3 (so termica 38.0)
+[relogio]    preco: barata 7h (R$ 0.0/MWh, 72.2 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 18.5 kg/MWh | correl 30d pearson=-0.21 spearman=-0.433 (n=721, horas a custo zero=299)
+[relogio] NE: dia 2026-10-07 | melhor 0h (23.1) | pior 11h (44.6) | delta 21.5 (faixa 20.9–22.3) | media 45d 30.4 (so termica 9.8)
+[relogio]    preco: barata 7h (R$ 0.0/MWh, 37.5 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 14.4 kg/MWh | correl 30d pearson=-0.354 spearman=-0.56 (n=721, horas a custo zero=294)
+[relogio] N: dia 2026-10-07 | melhor 18h (167.0) | pior 2h (284.9) | delta 117.9 (faixa 51.9–201.5) | media 45d 212.9 (so termica 195.9)
+[relogio]    preco: barata 7h (R$ 12.9/MWh, 203.6 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 36.6 kg/MWh | correl 30d pearson=0.095 spearman=0.28 (n=721, horas a custo zero=13)
 [relogio] gravado /home/runner/work/relogio-carbono/relogio-carbono/docs/data/sin.json (20.9 kB)
