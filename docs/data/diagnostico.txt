@@ -1,18 +1,18 @@
 [relogio] baixando https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/balanco_energia_subsistema_ho/BALANCO_ENERGIA_SUBSISTEMA_2026.parquet
 [relogio]   ok — 1.7 MB
-[relogio] shape=(34200, 9)
+[relogio] shape=(34320, 9)
 [relogio] colunas reais: id_subsistema, nom_subsistema, din_instante, val_gerhidraulica, val_gertermica, val_gereolica, val_gersolar, val_carga, val_intercambio
 [relogio] mapeamento: {"instante": "din_instante", "subsistema": "id_subsistema", "hidraulica": "val_gerhidraulica", "termica": "val_gertermica", "eolica": "val_gereolica", "solar": "val_gersolar", "nuclear": null, "carga": "val_carga", "intercambio": "val_intercambio"}
 [relogio] AVISO — sem coluna correspondente para: ['nuclear']
 [relogio] baixando CMO https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/cmo_tm/CMO_SEMIHORARIO_2026.parquet
-[relogio]   ok — 0.35 MB, colunas: ['id_subsistema', 'nom_subsistema', 'din_instante', 'val_cmo']
-[relogio]   CMO horario: 27168 linhas, ate 2026-10-14 23:00:00
-[relogio] SE: dia 2026-10-12 | melhor 18h (90.3) | pior 4h (126.3) | delta 36.0 (faixa 16.6–60.7) | media 45d 99.4 (so termica 75.1)
-[relogio]    preco: barata 7h (R$ 0.0/MWh, 103.6 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 13.3 kg/MWh | correl 30d pearson=-0.084 spearman=-0.113 (n=721, horas a custo zero=297)
-[relogio] S: dia 2026-10-12 | melhor 19h (52.8) | pior 6h (76.1) | delta 23.3 (faixa 11.9–37.6) | media 45d 63.4 (so termica 39.2)
-[relogio]    preco: barata 6h (R$ 0.0/MWh, 76.1 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 23.3 kg/MWh | correl 30d pearson=-0.25 spearman=-0.593 (n=721, horas a custo zero=304)
-[relogio] NE: dia 2026-10-12 | melhor 0h (22.4) | pior 11h (50.4) | delta 28.0 (faixa 25.4–31.4) | media 45d 30.9 (so termica 10.1)
-[relogio]    preco: barata 6h (R$ 0.0/MWh, 38.0 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 15.6 kg/MWh | correl 30d pearson=-0.286 spearman=-0.554 (n=721, horas a custo zero=299)
-[relogio] N: dia 2026-10-12 | melhor 10h (174.9) | pior 2h (270.5) | delta 95.6 (faixa 35.8–171.7) | media 45d 216.2 (so termica 199.2)
-[relogio]    preco: barata 10h (R$ 8.7/MWh, 174.9 kg) | coincide com a limpa: True | custo em carbono de decidir pelo preco: 0.0 kg/MWh | correl 30d pearson=0.033 spearman=0.272 (n=721, horas a custo zero=12)
-[relogio] gravado /home/runner/work/relogio-carbono/relogio-carbono/docs/data/sin.json (20.9 kB)
+[relogio]   ok — 0.36 MB, colunas: ['id_subsistema', 'nom_subsistema', 'din_instante', 'val_cmo']
+[relogio]   CMO horario: 27264 linhas, ate 2026-10-15 23:00:00
+[relogio] SE: dia 2026-10-13 | melhor 14h (84.0) | pior 2h (110.4) | delta 26.4 (faixa 7.9–49.9) | media 45d 99.3 (so termica 75.0)
+[relogio]    preco: barata 8h (R$ 0.0/MWh, 92.4 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 8.4 kg/MWh | correl 30d pearson=-0.068 spearman=-0.089 (n=721, horas a custo zero=296)
+[relogio] S: dia 2026-10-13 | melhor 21h (53.9) | pior 7h (64.8) | delta 10.9 (faixa 6.9–15.8) | media 45d 63.6 (so termica 39.4)
+[relogio]    preco: barata 6h (R$ 0.0/MWh, 64.5 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 10.6 kg/MWh | correl 30d pearson=-0.248 spearman=-0.595 (n=721, horas a custo zero=303)
+[relogio] NE: dia 2026-10-13 | melhor 0h (22.5) | pior 10h (43.0) | delta 20.5 (faixa 20.9–20.0) | media 45d 31.0 (so termica 10.2)
+[relogio]    preco: barata 7h (R$ 0.0/MWh, 36.1 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 13.6 kg/MWh | correl 30d pearson=-0.274 spearman=-0.546 (n=721, horas a custo zero=298)
+[relogio] N: dia 2026-10-13 | melhor 10h (186.9) | pior 23h (277.1) | delta 90.2 (faixa 34.0–161.4) | media 45d 216.5 (so termica 199.5)
+[relogio]    preco: barata 8h (R$ 17.0/MWh, 198.1 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 11.2 kg/MWh | correl 30d pearson=0.045 spearman=0.289 (n=721, horas a custo zero=6)
+[relogio] gravado /home/runner/work/relogio-carbono/relogio-carbono/docs/data/sin.json (21.0 kB)
