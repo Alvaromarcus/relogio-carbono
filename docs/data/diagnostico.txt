@@ -12,7 +12,7 @@
 [relogio] S: dia 2026-10-21 | melhor 20h (40.6) | pior 10h (52.6) | delta 12.0 (faixa 10.2–14.4) | media 45d 63.2 (so termica 38.8)
 [relogio]    preco: barata 2h (R$ 0.0/MWh, 45.5 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 4.9 kg/MWh | correl 30d pearson=0.016 spearman=-0.448 (n=721, horas a custo zero=258)
 [relogio] NE: dia 2026-10-21 | melhor 0h (21.1) | pior 10h (39.4) | delta 18.3 (faixa 18.2–18.4) | media 45d 31.8 (so termica 10.8)
-[relogio]    preco: barata 7h (R$ 0.0/MWh, 33.6 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 12.5 kg/MWh | correl 30d pearson=0.193 spearman=-0.453 (n=721, horas a custo zero=257)
+[relogio]    preco: barata 7h (R$ 0.0/MWh, 33.6 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 12.5 kg/MWh | correl 30d pearson=0.194 spearman=-0.452 (n=721, horas a custo zero=257)
 [relogio] N: dia 2026-10-21 | melhor 18h (171.4) | pior 0h (284.9) | delta 113.5 (faixa 49.9–194.2) | media 45d 218.7 (so termica 201.8)
 [relogio]    preco: barata 7h (R$ 8.4/MWh, 204.1 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 32.7 kg/MWh | correl 30d pearson=-0.094 spearman=0.248 (n=721, horas a custo zero=3)
 [relogio] gravado /home/runner/work/relogio-carbono/relogio-carbono/docs/data/sin.json (20.9 kB)
