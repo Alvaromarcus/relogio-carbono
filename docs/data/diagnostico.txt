@@ -8,11 +8,11 @@
 [relogio]   ok — 0.37 MB, colunas: ['id_subsistema', 'nom_subsistema', 'din_instante', 'val_cmo']
 [relogio]   CMO horario: 28704 linhas, ate 2026-10-30 23:00:00
 [relogio] SE: dia 2026-10-28 | melhor 17h (80.6) | pior 1h (109.2) | delta 28.6 (faixa 12.4–49.2) | media 45d 95.6 (so termica 71.0)
-[relogio]    preco: barata 8h (R$ 0.0/MWh, 91.7 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 11.1 kg/MWh | correl 30d pearson=0.209 spearman=0.033 (n=721, horas a custo zero=256)
+[relogio]    preco: barata 8h (R$ 0.0/MWh, 91.7 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 11.1 kg/MWh | correl 30d pearson=0.209 spearman=0.034 (n=721, horas a custo zero=256)
 [relogio] S: dia 2026-10-28 | melhor 18h (57.8) | pior 10h (76.6) | delta 18.8 (faixa 13.8–24.9) | media 45d 60.5 (so termica 35.9)
 [relogio]    preco: barata 7h (R$ 0.0/MWh, 70.3 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 12.5 kg/MWh | correl 30d pearson=0.067 spearman=-0.384 (n=721, horas a custo zero=264)
 [relogio] NE: dia 2026-10-28 | melhor 2h (19.8) | pior 11h (37.3) | delta 17.5 (faixa 18.1–16.6) | media 45d 32.8 (so termica 11.6)
-[relogio]    preco: barata 7h (R$ 0.0/MWh, 29.7 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 9.9 kg/MWh | correl 30d pearson=0.231 spearman=-0.385 (n=721, horas a custo zero=257)
+[relogio]    preco: barata 7h (R$ 0.0/MWh, 29.7 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 9.9 kg/MWh | correl 30d pearson=0.232 spearman=-0.385 (n=721, horas a custo zero=257)
 [relogio] N: dia 2026-10-28 | melhor 10h (173.5) | pior 0h (302.2) | delta 128.7 (faixa 51.4–226.9) | media 45d 216.4 (so termica 199.4)
 [relogio]    preco: barata 7h (R$ 10.8/MWh, 199.2 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 25.7 kg/MWh | correl 30d pearson=-0.088 spearman=0.298 (n=721, horas a custo zero=4)
 [relogio] gravado /home/runner/work/relogio-carbono/relogio-carbono/docs/data/sin.json (21.0 kB)
