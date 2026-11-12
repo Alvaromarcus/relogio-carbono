@@ -7,12 +7,12 @@
 [relogio] baixando CMO https://ons-aws-prod-opendata.s3.amazonaws.com/dataset/cmo_tm/CMO_SEMIHORARIO_2026.parquet
 [relogio]   ok — 0.38 MB, colunas: ['id_subsistema', 'nom_subsistema', 'din_instante', 'val_cmo']
 [relogio]   CMO horario: 29952 linhas, ate 2026-11-12 23:00:00
-[relogio] SE: dia 2026-11-10 | melhor 17h (91.1) | pior 5h (111.6) | delta 20.5 (faixa 10.5–33.1) | media 45d 95.6 (so termica 71.0)
-[relogio]    preco: barata 7h (R$ 0.0/MWh, 103.9 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 12.8 kg/MWh | correl 30d pearson=0.236 spearman=0.049 (n=721, horas a custo zero=271)
-[relogio] S: dia 2026-11-10 | melhor 19h (58.6) | pior 7h (72.4) | delta 13.8 (faixa 10.4–18.2) | media 45d 61.6 (so termica 37.0)
+[relogio] SE: dia 2026-11-10 | melhor 17h (91.1) | pior 5h (111.2) | delta 20.1 (faixa 10.4–32.4) | media 45d 95.6 (so termica 71.0)
+[relogio]    preco: barata 7h (R$ 0.0/MWh, 103.5 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 12.4 kg/MWh | correl 30d pearson=0.236 spearman=0.05 (n=721, horas a custo zero=271)
+[relogio] S: dia 2026-11-10 | melhor 19h (58.6) | pior 7h (72.3) | delta 13.7 (faixa 10.4–18.0) | media 45d 61.6 (so termica 37.0)
 [relogio]    preco: barata 2h (R$ 0.0/MWh, 69.4 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 10.8 kg/MWh | correl 30d pearson=0.108 spearman=-0.313 (n=721, horas a custo zero=285)
-[relogio] NE: dia 2026-11-10 | melhor 21h (23.3) | pior 10h (44.4) | delta 21.1 (faixa 20.1–22.5) | media 45d 33.9 (so termica 12.3)
-[relogio]    preco: barata 6h (R$ 0.0/MWh, 33.9 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 10.6 kg/MWh | correl 30d pearson=0.233 spearman=-0.374 (n=721, horas a custo zero=277)
+[relogio] NE: dia 2026-11-10 | melhor 21h (23.2) | pior 10h (44.4) | delta 21.2 (faixa 20.1–22.6) | media 45d 33.9 (so termica 12.3)
+[relogio]    preco: barata 6h (R$ 0.0/MWh, 34.0 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 10.8 kg/MWh | correl 30d pearson=0.233 spearman=-0.374 (n=721, horas a custo zero=277)
 [relogio] N: dia 2026-11-10 | melhor 18h (148.4) | pior 22h (210.0) | delta 61.6 (faixa 27.1–105.3) | media 45d 214.6 (so termica 197.6)
-[relogio]    preco: barata 7h (R$ 7.1/MWh, 182.9 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 34.5 kg/MWh | correl 30d pearson=-0.057 spearman=0.235 (n=721, horas a custo zero=20)
+[relogio]    preco: barata 7h (R$ 7.1/MWh, 182.9 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 34.5 kg/MWh | correl 30d pearson=-0.057 spearman=0.236 (n=721, horas a custo zero=20)
 [relogio] gravado /home/runner/work/relogio-carbono/relogio-carbono/docs/data/sin.json (20.9 kB)
