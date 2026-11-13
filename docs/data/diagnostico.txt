@@ -9,7 +9,7 @@
 [relogio]   CMO horario: 30048 linhas, ate 2026-11-13 23:00:00
 [relogio] SE: dia 2026-11-11 | melhor 15h (95.8) | pior 2h (124.8) | delta 29.0 (faixa 10.3–52.8) | media 45d 95.9 (so termica 71.3)
 [relogio]    preco: barata 7h (R$ 0.0/MWh, 106.7 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 10.9 kg/MWh | correl 30d pearson=0.237 spearman=0.053 (n=721, horas a custo zero=270)
-[relogio] S: dia 2026-11-11 | melhor 20h (58.1) | pior 6h (73.3) | delta 15.2 (faixa 9.4–22.5) | media 45d 61.9 (so termica 37.2)
+[relogio] S: dia 2026-11-11 | melhor 20h (58.1) | pior 6h (73.3) | delta 15.2 (faixa 9.4–22.6) | media 45d 61.9 (so termica 37.2)
 [relogio]    preco: barata 6h (R$ 0.0/MWh, 73.3 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 15.2 kg/MWh | correl 30d pearson=0.11 spearman=-0.303 (n=721, horas a custo zero=286)
 [relogio] NE: dia 2026-11-11 | melhor 22h (22.1) | pior 10h (44.1) | delta 22.0 (faixa 21.0–23.4) | media 45d 33.9 (so termica 12.3)
 [relogio]    preco: barata 7h (R$ 0.0/MWh, 37.9 kg) | coincide com a limpa: False | custo em carbono de decidir pelo preco: 15.8 kg/MWh | correl 30d pearson=0.237 spearman=-0.369 (n=721, horas a custo zero=277)
